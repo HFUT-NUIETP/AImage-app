@@ -3,7 +3,7 @@
 		<view class="statusBar" :style="{ height: statusBarHeight + 'px' }"></view>
 		<view class="topbar" :style="[{ marginTop: statusBarHeight + 'px' }]">
 			<view class="topbar-back" @click.stop="back"></view>
-			<view>风格处理</view>
+			<view style="font-family: PBold; font-weight: bold;">风格处理</view>
 			<view class="topbar-reset" @click.stop="cancel">清空</view>
 		</view>
 
@@ -493,7 +493,7 @@
 		width: 100%;
 		/*height: 900upx;*/
 		background-color: #ffffff;
-		border-radius: 40upx;
+		/*border-radius: 40upx;*/
 		/*margin: 0 auto;*/
 		display: flex;
 		flex-direction: row;
