@@ -1,27 +1,17 @@
 <template>
 	<view class="container" :style="[{ height: windowHeight - statusBarHeight + 'px' }]" @click="showADD=false">
 		<view class="statusBar" :style="{ height: statusBarHeight + 'px' }"></view>
-		<view id="topTarbar" :style="[{ marginTop: statusBarHeight + 'px' }]">
-			风格处理
-			<view id="menu" @click.stop="changeDrawer">
-				<view class="menuButton" style="top: 0;left: 0;"></view>
-				<view class="menuButton" style="top: 0;right: 0;"></view>
-				<view class="menuButton" style="bottom: 0;left: 0;"></view>
-				<view class="menuButton" style="bottom: 0;right: 0;"></view>
-			</view>
+		<view class="topbar" :style="[{ marginTop: statusBarHeight + 'px' }]">
+			<view class="topbar-back" @click.stop="back"></view>
+			<view>风格处理</view>
+			<view class="topbar-reset" @click.stop="cancel">清空</view>
 		</view>
 
-		<uni-drawer ref="menuDrawer" :mask="true" :maskClick="true" mode="left" :width="220" :visible="true">
-			<view style="padding:30rpx;">
-
-			</view>
-		</uni-drawer>
-
 		<view id="boxBack">
-			<view id="chooseBox" @click.stop="showADD = !showADD">
-				<image id="image" :src="img" mode="aspectFill"></image>
+			<view id="chooseBox">
+				<image id="image" v-if="!showADD" v-bind:src="img" mode="aspectFill"></image>
 				<view @click.stop="addImg" v-if="showADD" id="addMask">
-					<view id="addIcon">+</view>
+					<view id="addIcon"></view>
 					<view v-if="false" id="changeIcon"></view>
 				</view>
 			</view>
@@ -30,14 +20,15 @@
 			<cropper ref="cropper" :aspectRatio="1" :imagePath="img" @complete="complete" @cancel="cancel"></cropper>
 		</view>
 		<view id="bottomType">
-			<view v-for="(fun, id) in functionType" :key="id" class="funTypeBox" @click="funChoose(id)">
+			<view class="funTypeContainer" v-for="(fun, id) in functionType" :key="id">
+				<view class="funTypeBoxWrap">
+					<view class="funTypeBox" @click="funChoose(id)"></view>
+				</view>
 				<view class="funTypeName">{{ fun.fun }}</view>
 			</view>
 			<view style="width: 30upx;height: 100%;flex-shrink: 0;"></view>
 		</view>
 		<!-- <view style="width: 100%;height: 9000upx;"></view> -->
-		<uni-fab style="--window-bottom: 90px;" @fabClick="" :pattern="fab_moreFun.pattern" :content="fab_moreFun.content"
-		 :horizontal="fab_moreFun.horizontal" :vertical="fab_moreFun.vertical" :direction="fab_moreFun.direction"></uni-fab>
 
 		<view class="functionBox" v-if="pencilData.flag" @click="pencilData.flag = false">
 			<view class="functionCard" @click.stop>
@@ -65,7 +56,7 @@
 				<view class="submitButton" @click="pencilDataSubmit()">提交</view>
 			</view>
 		</view>
-		
+
 		<view class="functionBox" v-if="oilpaintData.flag" @click="oilpaintData.flag = false">
 			<view class="functionCard" @click.stop style="height: 30%;">
 				<view class="closeBox" @click="oilpaintData.flag = false">×</view>
@@ -122,44 +113,7 @@
 						img: ''
 					}
 				],
-				fab_moreFun: {
-					pattern: {
-						color: "#3c3e49",
-						selectedColor: "#007AFF",
-						backgroundColor: "#ffffff",
-						buttonColor: "#3c3e49"
-					},
-					horizontal: "right",
-					vertical: "bottom",
-					direction: "horizontal",
-					popMenu: true,
-					content: [{
-							iconPath: "",
-							selectedIconPath: "",
-							text: "分享",
-							active: false
-						},
-						{
-							iconPath: "",
-							selectedIconPath: "",
-							text: "保存",
-							active: false
-						},
-						{
-							iconPath: "",
-							selectedIconPath: "",
-							text: "刷新",
-							active: false
-						},
-						{
-							iconPath: "",
-							selectedIconPath: "",
-							text: "清空",
-							active: false
-						}
-					]
-				},
-				showADD: false,
+				showADD: true,
 				img: '',
 				imgCopy: '',
 
@@ -188,8 +142,8 @@
 			}, 1);
 		},
 		methods: {
-			changeDrawer() {
-				this.$refs.menuDrawer.open();
+			back() {
+				uni.navigateBack({});
 			},
 			addImg() {
 				uni.chooseImage({
@@ -207,6 +161,11 @@
 				this.img = res.path;
 				this.imgCopy = res.path;
 				this.showADD = false;
+			},
+			cancel() {
+				this.img = "data:image/jpeg;base64";
+				this.imgCopy = "data:image/jpeg;base64";
+				this.showADD = true;
 			},
 			funChoose(type) {
 				this.pencilData.flag = false;
@@ -491,31 +450,21 @@
 	}
 </script>
 
-<style>
+<style lang="scss" scoped>
 	.container {
 		width: 100%;
 		/* height: 1000upx; */
 		background-color: #f3f3f3;
 		position: relative;
+		display: flex;
+		flex-direction: column;
 	}
 	.statusBar {
 		background-image: linear-gradient(to right, #ededed, #6d89c3);
 		width: 750px;
-		position: fixed;
+		/*position: fixed;*/
 		top: 0;
 		z-index: 999;
-	}
-	#topTarbar {
-		width: 100%;
-		height: 100upx;
-		background-color: #FFFFFF;
-		border-bottom: #e5e5e5 2upx solid;
-		display: flex;
-		flex-direction: row;
-		justify-content: center;
-		align-items: center;
-		position: fixed;
-		z-index: 10;
 	}
 	#menu {
 		width: 65upx;
@@ -536,14 +485,16 @@
 	#boxBack {
 		width: 100%;
 		background-color: inherit;
-		padding: 200upx 0 0 0;
+		flex-grow: 1;
+		display: flex;
+		/*padding: 200upx 0 0 0;*/
 	}
 	#chooseBox {
-		width: 90%;
-		height: 900upx;
+		width: 100%;
+		/*height: 900upx;*/
 		background-color: #ffffff;
 		border-radius: 40upx;
-		margin: 0 auto;
+		/*margin: 0 auto;*/
 		display: flex;
 		flex-direction: row;
 		justify-content: center;
@@ -558,42 +509,47 @@
 	#addMask {
 		width: 100%;
 		height: 100%;
-		background-color: rgba(0,0,0,0.3);
+		/*background-color: rgba(0,0,0,0.3);*/
 		overflow: hidden;
-		position: absolute;
-		top: 0;
-		left: 0;
+		/*position: absolute;*/
+		/*top: 0;*/
+		/*left: 0;*/
 	}
 	#addIcon {
-		width: 150upx;
-		height: 150upx;
-		border-radius: 100%;
-		border: #FFFFFF 20upx solid;
+		width: 100upx;
+		height: 100upx;
+		background-image: url("../../static/add.png");
+		background-size: cover;
 		margin: 50% auto 0 auto;
 		display: flex;
 		flex-direction: column;
 		align-items: center;
 		color: #FFFFFF;
-		font-size: 100upx;
-		font-weight: 900;
 	}
 	#bottomType {
+		padding-top: 10rpx;
 		width: 100%;
-		height: 200upx;
-		padding-bottom: 10px;
+		height: 240upx;
+		/*padding-bottom: 10px;*/
 		background-color: #FFFFFF;
 		display: flex;
 		flex-direction: row;
 		flex-wrap: nowrap;
 		overflow-x: scroll;
-		position: fixed;
-		bottom: -10px;
 		z-index: 10;
 	}
+	.funTypeContainer {
+		margin-left: 30rpx;
+	}
+	.funTypeBoxWrap {
+		border-radius: 22upx;
+		border: 1px solid white;
+		box-shadow: 0 0 8rpx #888;
+		margin-bottom: 10rpx;
+	}
 	.funTypeBox {
-		width: 140upx;
-		height: 140upx;
-		margin: 30upx 0 0 30upx;
+		width: 110upx;
+		height: 110upx;
 		background-color: #67C23A;
 		border-radius: 20upx;
 		flex-shrink: 0;
@@ -601,16 +557,16 @@
 		overflow: hidden;
 	}
 	.funTypeName {
-		width: 100%;
+		/*width: 100%;*/
 		height: 60upx;
-		position: absolute;
-		bottom: 0;
-		background-color: rgba(0, 0, 0, 0.5);
+		/*position: absolute;*/
+		/*bottom: 0;*/
+		/*background-color: rgba(0, 0, 0, 0.5);*/
 		display: flex;
 		flex-direction: row;
 		justify-content: center;
 		align-items: center;
-		color: #FFFFFF;
+		font-size: 26upx;
 	}
 
 	.functionBox {
@@ -680,4 +636,29 @@
 		line-height: 80upx;
 		text-align: center;
 	}
+	.topbar {
+		width: 100%;
+		height: 100upx;
+		background-color: #FFFFFF;
+		border-bottom: #e5e5e5 2upx solid;
+		display: flex;
+		flex-direction: row;
+		justify-content: space-between;
+		align-items: center;
+		/*position: fixed;*/
+		z-index: 10;
+		font-size: 30upx;
+		&-reset {
+			margin-right: 20rpx;
+			color: #6f75fe;
+		 }
+		&-back {
+			background-image: url("../../static/back.png");
+			height: 45upx;
+			width: 45upx;
+			background-size: cover;
+			margin-left: 20rpx;
+		}
+	}
+
 </style>
