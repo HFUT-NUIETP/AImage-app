@@ -7,7 +7,7 @@
 			<view class="topbar-reset" @click.stop="cancel">清空</view>
 		</view>
 
-		<view id="boxBack">
+		<view id="boxBack" v-if="currentMainComponent === 'choose'">
 			<view id="chooseBox">
 				<image id="image" v-if="!showADD" v-bind:src="img" mode="aspectFill"></image>
 				<view @click.stop="addImg" v-if="showADD" id="addMask">
@@ -15,6 +15,17 @@
 					<view v-if="false" id="changeIcon"></view>
 				</view>
 			</view>
+		</view>
+		<view class="boxBack progress-popup" v-else-if="currentMainComponent === 'progress'" :style="[{height: windowHeight + 'px'}]">
+				<u-circle-progress :percent="percent" active-color="#6200ee" width="112" border-width="10" inactive-color="#fff"></u-circle-progress>
+			<view>正在生成风格化图像</view>
+			<view class="cancel-button">取消</view>
+		</view>
+		<view class="boxBack" v-else-if="currentMainComponent === 'success'">
+
+		</view>
+		<view class="boxBack" v-else-if="currentMainComponent === 'error'">
+
 		</view>
 		<view>
 			<cropper ref="cropper" :aspectRatio="1" :imagePath="img" @complete="complete" @cancel="cancel"></cropper>
@@ -40,7 +51,7 @@
 				<input-slider name="线条粗细" :value="pencilData.gammaS" :change="(e) => this.pencilData.gammaS = e.detail.value" :show_value="true" step="1" min="1" max="50"/>
 				<input-slider name="颜色深浅" :value="pencilData.gammaI" :change="(e) => this.pencilData.gammaI = e.detail.value" :show_value="true" step="1" min="1" max="50"/>
 				<input-slider name="图片质量" :value="pencilData.quality" :change="(e) => this.pencilData.gammaS = e.detail.value" :show_value="true" step="1" min="1" max="3"/>
-				<view class="submitButton" @click="pencilDataSubmit()">生成</view>
+				<view class="submitButton" @click="startProcess('pencil')">生成</view>
 			</view>
 		</uni-popup>
 		<uni-popup ref="oilPopup" type="bottom">
@@ -54,12 +65,12 @@
 				<view class="submitButton" @click="oilpaintDataSubmit()">提交</view>
 			</view>
 		</uni-popup>
-
 	</view>
 </template>
 
 <script>
 	import Cropper from '../../components/yankai-cropper/cropper.vue';
+	import uCircleProgress from 'uview-ui/components/u-circle-progress/u-circle-progress.vue'
 	// import md5 from 'md5.js'
 	import {
 		pathToBase64,
@@ -73,11 +84,9 @@
 			return {
 				statusBarHeight: 0,
 				windowHeight: 0,
+				currentMainComponent: "choose",
+				percent: 1,
 				functionType: [
-					// {
-					// 	fun: '原  图',
-					// 	img: ''
-					// },
 					{
 						name: "pencil",
 						fun: '铅笔画',
@@ -98,14 +107,6 @@
 						fun: '卡通头像',
 						img: ''
 					},
-					// {
-					// 	fun: '艺术画',
-					// 	img: ''
-					// },
-					// {
-					// 	fun: '动态图',
-					// 	img: ''
-					// }
 				],
 				showADD: true,
 				img: '',
@@ -171,8 +172,6 @@
 					});
 					return;
 				}
-				// this.pencilData.flag = false;
-				// this.oilpaintData.flag = false;
 				switch (type) {
 					case 'pencil':
 						this.$refs.pencilPopup.open();
@@ -192,231 +191,97 @@
 						return;
 				}
 			},
-			pencilDataSubmit() {
-					uni.showLoading({
-						title: '绘画中……',
-						mask: true
-					});
-					pathToBase64(this.img)
-						.then(base64 => {
-							uni.request({
-								url: this.serverUrl + 'pencil',
-								method: 'POST',
-								header: {
-									'content-type': 'application/x-www-form-urlencoded'
-								},
-								data: {
-									'img': base64.split(',')[1],
-									'color': (this.pencilData.color ? 'True' : 'False'),
-									's': (this.pencilData.gammaS / 10).toFixed(1),
-									'i': (this.pencilData.gammaI / 10).toFixed(1),
-									'q': this.pencilData.quality
-								},
-								success: (res) => {
-									if (res.statusCode == 200) {
-										base64ToPath("data:image/png;base64," + res.data)
-											.then(path => {
-												uni.hideLoading();
-												uni.showToast({
-													title: '画出来了！',
-													mask: true
-												});
-												this.img = path;
-												this.pencilData.flag = false;
-											});
-									} else {
-										uni.hideLoading();
-										uni.showToast({
-											title: '没有画出来！',
-											icon: 'none',
-											mask: true
-										})
-									}
-								},
-								fail: (res) => {
-									uni.showToast({
-										title: '网络异常！',
-										icon: 'none',
-										mask: true
-									})
-									uni.hideLoading()
-								}
-							});
-						})
-						.catch(error => {
-							uni.hideLoading();
-						})
-			},
-			animeFunction() {
+			startProcess(type) {
 
-					uni.showLoading({
-						title: '绘画中……',
-						mask: true
-					});
-					pathToBase64(this.img)
-						.then(base64 => {
-							uni.request({
-								url: this.serverUrl + 'anime',
-								method: 'POST',
-								header: {
-									'content-type': 'application/x-www-form-urlencoded'
-								},
-								data: {
-									'img': base64.split(',')[1]
-								},
-								success: (res) => {
-									if (res.statusCode == 200) {
-										base64ToPath("data:image/png;base64," + res.data)
-											.then(path => {
-												uni.hideLoading();
-												uni.showToast({
-													title: '画出来了！',
-													mask: true
-												});
-												this.img = path;
-											});
-									} else {
-										uni.hideLoading();
-										uni.showToast({
-											title: '没有画出来！',
-											icon: 'none',
-											mask: true
-										})
-									}
-								},
-								fail: (res) => {
-									uni.showToast({
-										title: '网络异常！',
-										icon: 'none',
-										mask: true
-									})
-									uni.hideLoading()
-								}
-							});
-						})
-						.catch(error => {
-							uni.hideLoading();
-						})
-			},
-			oilpaintFunction() {
-				this.oilpaintData.flag = !this.oilpaintData.flag;
-			},
-			oilpaintDataSubmit() {
-					uni.showLoading({
-						title: '绘画中……',
-						mask: true
-					});
-					pathToBase64(this.img)
-						.then(base64 => {
-							uni.request({
-								url: this.serverUrl + 'oilpaint',
-								method: 'POST',
-								header: {
-									'content-type': 'application/x-www-form-urlencoded'
-								},
-								data: {
-									'img': base64.split(',')[1],
-									'model': (this.oilpaintData.model ? 0 : 1)
-								},
-								success: (res) => {
-									if (res.statusCode == 200) {
-										base64ToPath("data:image/png;base64," + res.data)
-											.then(path => {
-												uni.hideLoading();
-												uni.showToast({
-													title: '画出来了！',
-													mask: true
-												});
-												this.img = path;
-												this.oilpaintData.flag = false;
-											});
-									} else {
-										uni.hideLoading();
-										uni.showToast({
-											title: '没有画出来！',
-											icon: 'none',
-											mask: true
-										})
-									}
-								},
-								fail: (res) => {
-									uni.showToast({
-										title: '网络异常！',
-										icon: 'none',
-										mask: true
-									})
-									uni.hideLoading()
-								}
-							});
-						})
-						.catch(error => {
-							uni.hideLoading();
-						})
-			},
-			cartoonFunction() {
-
-					uni.showLoading({
-						title: '绘画中……',
-						mask: true
-					});
-					pathToBase64(this.img)
-						.then(base64 => {
-							uni.request({
-								url: this.serverUrl + 'cartoon',
-								method: 'POST',
-								header: {
-									'content-type': 'application/x-www-form-urlencoded'
-								},
-								data: {
-									'img': base64.split(',')[1]
-								},
-								success: (res) => {
-									if (res.statusCode == 200 && res.data.status == 0) {
-										base64ToPath("data:image/png;base64," + res.data.img)
-											.then(path => {
-												uni.hideLoading();
-												uni.showToast({
-													title: '画出来了！',
-													mask: true
-												});
-												this.img = path;
-											});
-									} else if (res.statusCode == 200 && res.data.status == 1) {
-										uni.hideLoading();
-										uni.showToast({
-											title: '没有找到人脸哦，请换张图片！',
-											icon: 'none',
-											mask: true
-										})
-									} else {
-										uni.hideLoading();
-										uni.showToast({
-											title: '没有画出来！',
-											icon: 'none',
-											mask: true
-										})
-									}
-								},
-								fail: (res) => {
-									uni.showToast({
-										title: '网络异常！',
-										icon: 'none',
-										mask: true
-									})
-									uni.hideLoading()
-								}
-							});
-						})
-						.catch(error => {
-							uni.hideLoading();
-						})
+				this.currentMainComponent = "progress";
+				this.percent = 1;
+				let data = {};
+				let path = "";
+				switch (type) {
+					case 'pencil':
+						this.$refs.pencilPopup.close();
+						data = {
+							'img': this.img.split(',')[1],
+							'color': (this.pencilData.color ? 'True' : 'False'),
+							's': (this.pencilData.gammaS / 10).toFixed(1),
+							'i': (this.pencilData.gammaI / 10).toFixed(1),
+							'q': this.pencilData.quality
+						};
+						path = "pencil";
+						break;
+					case 'oil':
+						this.$refs.oilPopup.close();
+						data = {
+							'img': this.img.split(',')[1],
+							'model': (this.oilpaintData.model ? 0 : 1)
+						};
+						path = "oilpaint";
+						break;
+					case 'anime':
+						data = {
+							'img': this.img.split(',')[1]
+						};
+						path = "anime";
+						break;
+					case 'cartoon':
+						data = {
+							'img': this.img.split(',')[1]
+						};
+						path = "cartoon";
+						break;
+					default:
+						return;
 				}
+				this.percent = 50;
+				uni.request({
+					url: this.serverUrl + path,
+					method: 'POST',
+					header: {
+						'content-type': 'application/x-www-form-urlencoded'
+					},
+					data: data,
+					success: (res) => {
+						if (res.statusCode === 200 && res.data.status === 1) {
+							uni.hideLoading();
+							uni.showToast({
+								title: '没有找到人脸哦，请换张图片！',
+								icon: 'none',
+								mask: true
+							})
+						} else if (res.statusCode === 200 && res.data.status === 1) {
+							this.percent = 100;
+							this.currentMainComponent = "success";
+							this.img = "data:image/png;base64," + res.data;
+							this.pencilData.flag = false;
+
+						} else {
+							//TODO:error UI
+							this.currentMainComponent = "error";
+						}
+					},
+					fail: (res) => {
+						this.currentMainComponent = "error";
+						uni.showToast({
+							title: '网络异常！',
+							icon: 'none',
+							mask: true
+						})
+						uni.hideLoading()
+					}
+				});
+				// while(this.percent < 99) {
+				// 	setTimeout(()=>{
+				// 		this.percent += 1;
+				// 	}, 1500)
+				// }
+			},
 		},
 		components: {
 			UniPopup,
 			InputSwitch,
 			InputSlider,
-			Cropper
+			Cropper,
+			uCircleProgress
 		}
 	}
 </script>
@@ -595,17 +460,18 @@
 	.inputSlider {
 		width: 70%;
 	}
-
+@import "../../common";
 	.submitButton {
+		@extend .button
 		/*width: 90%;*/
-		height: 80rpx;
-		margin: 50rpx auto;
-		background-color: #7076fe;
-		color: #FFFFFF;
-		font-size: 40rpx;
-		border-radius: 40rpx;
-		line-height: 80rpx;
-		text-align: center;
+		/*height: 80rpx;*/
+		/*margin: 50rpx auto;*/
+		/*background-color: #7076fe;*/
+		/*color: #FFFFFF;*/
+		/*font-size: 40rpx;*/
+		/*border-radius: 40rpx;*/
+		/*line-height: 80rpx;*/
+		/*text-align: center;*/
 	}
 	.topbar {
 		width: 100%;
@@ -635,6 +501,20 @@
 	.popup {
 		background-color: #fff;
 		padding: 10%;
+	}
+
+	.progress-popup {
+		display: flex;
+		flex-direction: column;
+		background-color: white;
+		justify-content: center;
+		align-items: center;
+		padding: 10%;
+
+	}
+
+	.cancel-button {
+		@extend .button;
 	}
 
 </style>
