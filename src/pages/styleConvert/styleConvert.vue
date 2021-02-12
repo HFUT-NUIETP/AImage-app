@@ -1,5 +1,5 @@
 <template>
-	<view class="container" :style="[{ height: windowHeight - statusBarHeight + 'px' }]" @click="showADD=false">
+	<view class="container" :style="[{ height: windowHeight - statusBarHeight + 'px' }]">
 		<view class="statusBar" :style="{ height: statusBarHeight + 'px' }"></view>
 		<view class="topbar" :style="[{ marginTop: statusBarHeight + 'px' }]">
 			<view class="topbar-back" @click.stop="back"></view>
@@ -22,52 +22,38 @@
 		<view id="bottomType">
 			<view class="funTypeContainer" v-for="(fun, id) in functionType" :key="id">
 				<view class="funTypeBoxWrap">
-					<view class="funTypeBox" @click="funChoose(id)"></view>
+					<view class="funTypeBox" :style="[{backgroundImage: fun.img}]" @click="funChoose(fun.name)"></view>
 				</view>
 				<view class="funTypeName">{{ fun.fun }}</view>
 			</view>
-			<view style="width: 30upx;height: 100%;flex-shrink: 0;"></view>
+			<view style="width: 30rpx;height: 100%;flex-shrink: 0;"></view>
 		</view>
-		<!-- <view style="width: 100%;height: 9000upx;"></view> -->
-
-		<view class="functionBox" v-if="pencilData.flag" @click="pencilData.flag = false">
-			<view class="functionCard" @click.stop>
-				<view class="closeBox" @click="pencilData.flag = false">×</view>
+		<uni-popup ref="pencilPopup" type="bottom">
+			<view class="popup">
+				<view class="closeBox" @click="$refs.pencilPopup.close()">×</view>
 				<view class="functionTitle">铅笔画</view>
 				<view class="inpputBox">
 					<view class="inputTitle">{{pencilData.color?'彩色':'黑白'}}模式</view>
-					<switch :checked="pencilData.color" @click="pencilData.color = !pencilData.color" />
+					<input-switch :checked="pencilData.color" @click="pencilData.color = !pencilData.color"/>
+					<!--					<switch :checked="pencilData.color" @click="pencilData.color = !pencilData.color" style="transform:scale(0.7)"/>-->
 				</view>
-				<view class="inpputBox">
-					<view class="inputTitle">线条粗细</view>
-					<slider class="inputSlider" :value="pencilData.gammaS" @change="pencilDataGammaSChange" :show-value="true" step="1"
-					 min="1" max="50" />
-				</view>
-				<view class="inpputBox">
-					<view class="inputTitle">颜色深浅</view>
-					<slider class="inputSlider" :value="pencilData.gammaI" @change="pencilDataGammaIChange" :show-value="true" step="1"
-					 min="1" max="50" />
-				</view>
-				<view class="inpputBox">
-					<view class="inputTitle">图片质量</view>
-					<slider class="inputSlider" :value="pencilData.quality" @change="pencilDataQuality" :show-value="true" step="1"
-					 min="1" max="3" />
-				</view>
-				<view class="submitButton" @click="pencilDataSubmit()">提交</view>
+				<input-slider name="线条粗细" :value="pencilData.gammaS" :change="(e) => this.pencilData.gammaS = e.detail.value" :show_value="true" step="1" min="1" max="50"/>
+				<input-slider name="颜色深浅" :value="pencilData.gammaI" :change="(e) => this.pencilData.gammaI = e.detail.value" :show_value="true" step="1" min="1" max="50"/>
+				<input-slider name="图片质量" :value="pencilData.quality" :change="(e) => this.pencilData.gammaS = e.detail.value" :show_value="true" step="1" min="1" max="3"/>
+				<view class="submitButton" @click="pencilDataSubmit()">生成</view>
 			</view>
-		</view>
-
-		<view class="functionBox" v-if="oilpaintData.flag" @click="oilpaintData.flag = false">
-			<view class="functionCard" @click.stop style="height: 30%;">
-				<view class="closeBox" @click="oilpaintData.flag = false">×</view>
+		</uni-popup>
+		<uni-popup ref="oilPopup" type="bottom">
+			<view class="popup">
+				<view class="closeBox" @click="$refs.oilPopup.close()">×</view>
 				<view class="functionTitle">油墨画</view>
 				<view class="inpputBox">
-					<view class="inputTitle" style="width: 400upx">{{oilpaintData.model?'冬季转夏季':'夏季转冬季'}}模式</view>
-					<switch :checked="oilpaintData.model" @click="oilpaintData.model = !oilpaintData.model" />
+					<view class="inputTitle" style="width: 400rpx">{{oilpaintData.model?'冬季转夏季':'夏季转冬季'}}模式</view>
+					<input-switch :checked="oilpaintData.model" @click="oilpaintData.model = !oilpaintData.model" />
 				</view>
 				<view class="submitButton" @click="oilpaintDataSubmit()">提交</view>
 			</view>
-		</view>
+		</uni-popup>
 
 	</view>
 </template>
@@ -79,39 +65,47 @@
 		pathToBase64,
 		base64ToPath
 	} from '../../js_sdk/gsq-image-tools/image-tools/index.js'
+	import InputSlider from "../../components/inputSlider";
+	import InputSwitch from "../../components/inputSwitch";
+	import UniPopup from "../../components/uni-popup/uni-popup";
 	export default {
 		data() {
 			return {
 				statusBarHeight: 0,
 				windowHeight: 0,
-				functionType: [{
-						fun: '原  图',
-						img: ''
-					},
+				functionType: [
+					// {
+					// 	fun: '原  图',
+					// 	img: ''
+					// },
 					{
+						name: "pencil",
 						fun: '铅笔画',
 						img: ''
 					},
 					{
+						name: "oil",
 						fun: '油墨画',
 						img: ''
 					},
 					{
+						name: "anime",
 						fun: '动漫风',
 						img: ''
 					},
 					{
+						name: "cartoon",
 						fun: '卡通头像',
 						img: ''
 					},
-					{
-						fun: '艺术画',
-						img: ''
-					},
-					{
-						fun: '动态图',
-						img: ''
-					}
+					// {
+					// 	fun: '艺术画',
+					// 	img: ''
+					// },
+					// {
+					// 	fun: '动态图',
+					// 	img: ''
+					// }
 				],
 				showADD: true,
 				img: '',
@@ -164,44 +158,41 @@
 			},
 			cancel() {
 				this.img = "data:image/jpeg;base64";
-				this.imgCopy = "data:image/jpeg;base64";
+				this.img = "";
+				this.imgCopy = "";
 				this.showADD = true;
 			},
 			funChoose(type) {
-				this.pencilData.flag = false;
-				this.oilpaintData.flag = false;
-				if (type == 0) {
-					this.img = this.imgCopy;
-				} else if (type == 1) {
-					this.pencilFunction();
-				} else if (type == 2) {
-					this.oilpaintFunction();
-				} else if (type == 3) {
-					this.animeFunction();
-				} else if (type == 4) {
-					this.cartoonFunction();
-				}
-			},
-			pencilFunction() {
-				this.pencilData.flag = !this.pencilData.flag;
-			},
-			pencilDataGammaSChange(e) {
-				this.pencilData.gammaS = e.detail.value;
-			},
-			pencilDataGammaIChange(e) {
-				this.pencilData.gammaI = e.detail.value;
-			},
-			pencilDataQuality(e) {
-				this.pencilData.quality = e.detail.value;
-			},
-			pencilDataSubmit() {
-				if (this.img == "") {
+				if(this.img === '') {
 					uni.showToast({
 						title: "请选择图片",
 						icon: "none",
 						mask: true
-					})
-				} else {
+					});
+					return;
+				}
+				// this.pencilData.flag = false;
+				// this.oilpaintData.flag = false;
+				switch (type) {
+					case 'pencil':
+						this.$refs.pencilPopup.open();
+						// this.pencilFunction();
+						break;
+					case 'oil':
+						this.$refs.oilPopup.open();
+						// this.oilpaintFunction();
+						break;
+					case 'anime':
+						this.animeFunction();
+						break;
+					case 'cartoon':
+						this.cartoonFunction();
+						break;
+					default:
+						return;
+				}
+			},
+			pencilDataSubmit() {
 					uni.showLoading({
 						title: '绘画中……',
 						mask: true
@@ -255,16 +246,9 @@
 						.catch(error => {
 							uni.hideLoading();
 						})
-				}
 			},
 			animeFunction() {
-				if (this.img == "") {
-					uni.showToast({
-						title: "请选择图片",
-						icon: "none",
-						mask: true
-					})
-				} else {
+
 					uni.showLoading({
 						title: '绘画中……',
 						mask: true
@@ -313,19 +297,11 @@
 						.catch(error => {
 							uni.hideLoading();
 						})
-				}
 			},
 			oilpaintFunction() {
 				this.oilpaintData.flag = !this.oilpaintData.flag;
 			},
 			oilpaintDataSubmit() {
-				if (this.img == "") {
-					uni.showToast({
-						title: "请选择图片",
-						icon: "none",
-						mask: true
-					})
-				} else {
 					uni.showLoading({
 						title: '绘画中……',
 						mask: true
@@ -376,16 +352,9 @@
 						.catch(error => {
 							uni.hideLoading();
 						})
-				}
 			},
 			cartoonFunction() {
-				if (this.img == "") {
-					uni.showToast({
-						title: "请选择图片",
-						icon: "none",
-						mask: true
-					})
-				} else {
+
 					uni.showLoading({
 						title: '绘画中……',
 						mask: true
@@ -442,9 +411,11 @@
 							uni.hideLoading();
 						})
 				}
-			}
 		},
 		components: {
+			UniPopup,
+			InputSwitch,
+			InputSlider,
 			Cropper
 		}
 	}
@@ -453,7 +424,7 @@
 <style lang="scss" scoped>
 	.container {
 		width: 100%;
-		/* height: 1000upx; */
+		/* height: 1000rpx; */
 		background-color: #f3f3f3;
 		position: relative;
 		display: flex;
@@ -467,18 +438,18 @@
 		z-index: 999;
 	}
 	#menu {
-		width: 65upx;
-		height: 65upx;
+		width: 65rpx;
+		height: 65rpx;
 		/* background-color: #007AFF; */
 		position: absolute;
 		top: 50%;
-		right: 20upx;
+		right: 20rpx;
 		transform: translateY(-50%);
 	}
 	.menuButton {
-		width: 25upx;
-		height: 25upx;
-		border: #CCCCCC 2upx solid;
+		width: 25rpx;
+		height: 25rpx;
+		border: #CCCCCC 2rpx solid;
 		flex-shrink: 0;
 		position: absolute;
 	}
@@ -487,13 +458,13 @@
 		background-color: inherit;
 		flex-grow: 1;
 		display: flex;
-		/*padding: 200upx 0 0 0;*/
+		/*padding: 200rpx 0 0 0;*/
 	}
 	#chooseBox {
 		width: 100%;
-		/*height: 900upx;*/
+		/*height: 900rpx;*/
 		background-color: #ffffff;
-		/*border-radius: 40upx;*/
+		/*border-radius: 40rpx;*/
 		/*margin: 0 auto;*/
 		display: flex;
 		flex-direction: row;
@@ -503,8 +474,8 @@
 		position: relative;
 	}
 	#image {
-		width: 670upx;
-		height: 670upx;
+		width: 670rpx;
+		height: 670rpx;
 	}
 	#addMask {
 		width: 100%;
@@ -516,8 +487,8 @@
 		/*left: 0;*/
 	}
 	#addIcon {
-		width: 100upx;
-		height: 100upx;
+		width: 100rpx;
+		height: 100rpx;
 		background-image: url("../../static/add.png");
 		background-size: cover;
 		margin: 50% auto 0 auto;
@@ -529,7 +500,7 @@
 	#bottomType {
 		padding-top: 10rpx;
 		width: 100%;
-		height: 240upx;
+		height: 240rpx;
 		/*padding-bottom: 10px;*/
 		background-color: #FFFFFF;
 		display: flex;
@@ -539,26 +510,26 @@
 		z-index: 10;
 	}
 	.funTypeContainer {
-		margin-left: 30rpx;
+		margin-left: 50rpx;
 	}
 	.funTypeBoxWrap {
-		border-radius: 22upx;
+		border-radius: 22rpx;
 		border: 1px solid white;
 		box-shadow: 0 0 8rpx #888;
 		margin-bottom: 10rpx;
 	}
 	.funTypeBox {
-		width: 110upx;
-		height: 110upx;
+		width: 116rpx;
+		height: 116rpx;
 		background-color: #67C23A;
-		border-radius: 20upx;
+		border-radius: 20rpx;
 		flex-shrink: 0;
 		position: relative;
 		overflow: hidden;
 	}
 	.funTypeName {
 		/*width: 100%;*/
-		height: 60upx;
+		height: 60rpx;
 		/*position: absolute;*/
 		/*bottom: 0;*/
 		/*background-color: rgba(0, 0, 0, 0.5);*/
@@ -566,7 +537,7 @@
 		flex-direction: row;
 		justify-content: center;
 		align-items: center;
-		font-size: 26upx;
+		font-size: 26rpx;
 	}
 
 	.functionBox {
@@ -579,38 +550,38 @@
 	}
 
 	.functionCard {
-		width: 90%;
+		width: 80%;
 		height: 45%;
-		padding: 5%;
+		padding: 10%;
 		position: absolute;
-		bottom: 200upx;
+		bottom: 200rpx;
 		left: 0;
-		border-top-left-radius: 40upx;
-		border-top-right-radius: 40upx;
+		border-top-left-radius: 40rpx;
+		border-top-right-radius: 40rpx;
 		background-color: #FFFFFF;
 		overflow: auto;
 	}
 
 	.closeBox {
 		position: absolute;
-		top: 20upx;
-		right: 50upx;
-		font-size: 50upx;
+		top: 20rpx;
+		right: 50rpx;
+		font-size: 50rpx;
 		font-weight: 900;
 	}
 
 	.functionTitle {
 		width: 100%;
-		height: 80upx;
+		height: 80rpx;
 		text-align: center;
-		font-size: 40upx;
+		font-size: 40rpx;
 		font-weight: 900;
-		line-height: 80upx;
+		line-height: 80rpx;
 	}
 
 	.inpputBox {
 		width: 100%;
-		height: 120upx;
+		height: 120rpx;
 		display: flex;
 		flex-direction: row;
 		justify-content: space-between;
@@ -626,39 +597,44 @@
 	}
 
 	.submitButton {
-		width: 90%;
-		height: 80upx;
-		margin: 50upx auto;
-		background-color: #4CD964;
+		/*width: 90%;*/
+		height: 80rpx;
+		margin: 50rpx auto;
+		background-color: #7076fe;
 		color: #FFFFFF;
-		font-size: 40upx;
-		border-radius: 40upx;
-		line-height: 80upx;
+		font-size: 40rpx;
+		border-radius: 40rpx;
+		line-height: 80rpx;
 		text-align: center;
 	}
 	.topbar {
 		width: 100%;
-		height: 100upx;
+		height: 100rpx;
 		background-color: #FFFFFF;
-		border-bottom: #e5e5e5 2upx solid;
+		border-bottom: #e5e5e5 2rpx solid;
 		display: flex;
 		flex-direction: row;
 		justify-content: space-between;
 		align-items: center;
 		/*position: fixed;*/
 		z-index: 10;
-		font-size: 30upx;
+		font-size: 30rpx;
 		&-reset {
 			margin-right: 20rpx;
 			color: #6f75fe;
 		 }
 		&-back {
 			background-image: url("../../static/back.png");
-			height: 45upx;
-			width: 45upx;
+			height: 45rpx;
+			width: 45rpx;
 			background-size: cover;
 			margin-left: 20rpx;
 		}
+	}
+
+	.popup {
+		background-color: #fff;
+		padding: 10%;
 	}
 
 </style>
