@@ -44,7 +44,7 @@
   "dependencies": {
     "@dcloudio/uni-app-plus": "^2.0.0-30720210122002",
     "@dcloudio/uni-h5": "^2.0.0-30720210122002",
-    "@dcloudio/uni-helper-json": "*",
+    "@dcloudio/uni-helper-json": "^1.0.13",
     "@dcloudio/uni-mp-360": "^2.0.0-30720210122002",
     "@dcloudio/uni-mp-alipay": "^2.0.0-30720210122002",
     "@dcloudio/uni-mp-baidu": "^2.0.0-30720210122002",
@@ -61,6 +61,7 @@
     "core-js": "^3.6.5",
     "flyio": "^0.6.2",
     "regenerator-runtime": "^0.12.1",
+    "uview-ui": "^1.8.3",
     "vue": "^2.6.11",
     "vuex": "^3.2.0"
   },
