@@ -6,7 +6,7 @@
 				<view class="topbar-back" v-if="currentMainComponent === 'choose' || currentMainComponent === 'success'" @click.stop="back"></view>
 			</view>
 			<view style="width: 50%; text-align: center">
-				<view v-if="currentMainComponent === 'choose' || currentMainComponent === 'progress'" style="font-family: PBold; font-weight: bold;">风格处理</view>
+				<view v-if="currentMainComponent === 'choose' || currentMainComponent === 'progress' || currentMainComponent === 'error'" style="font-weight: bold;">风格转换</view>
 				<view v-if="currentMainComponent === 'success'" style="font-family: PBold; font-weight: bold; margin: auto">保存并分享</view>
 			</view>
 			<view style="width: 25%; text-align: end">
@@ -45,7 +45,15 @@
 			</view>
 		</view>
 		<view class="boxBack" v-else-if="currentMainComponent === 'error'">
-
+			<view class="errorBox">
+				<view class="errorContent">
+					<view class="errorIcon"></view>
+					<view style="font-size: 36rpx; margin-top: 100rpx">错误: {{errorMsg}}</view>
+				</view>
+				<view class="buttonGroup">
+					<view class="button" @click="cancelTask">确认</view>
+				</view>
+			</view>
 		</view>
 		<view>
 			<cropper ref="cropper" :aspectRatio="1" :imagePath="img" @complete="complete" @cancel="cancel"></cropper>
@@ -107,6 +115,7 @@
 				currentMainComponent: "choose", //Todo:keep this 'choose'
 				percent: 1,
 				requestTask: undefined,
+				errorMsg: "",
 				functionType: [
 					{
 						name: "pencil",
@@ -213,7 +222,7 @@
 				}
 			},
 			startProcess(type) {
-
+				this.errorMsg = "";
 				this.currentMainComponent = "progress";
 				this.percent = 1;
 				let data = {};
@@ -264,31 +273,22 @@
 					success: (res) => {
 						if (res.statusCode === 200 && res.data.status === 1) {
 							uni.hideLoading();
-							uni.showToast({
-								title: '没有找到人脸哦，请换张图片！',
-								icon: 'none',
-								mask: true
-							})
+							this.errorMsg = "没有找到人脸哦，请换张图片"
+							this.currentMainComponent = "error";
 						} else if (res.statusCode === 200) {
 							this.percent = 100;
 							if(this.currentMainComponent === "choose") return;
 							this.currentMainComponent = "success";
 							this.img = "data:image/png;base64," + res.data;
 							this.pencilData.flag = false;
-
 						} else {
-							//TODO:error UI
+							this.errorMsg = "内部错误";
 							this.currentMainComponent = "error";
 						}
 					},
 					fail: (res) => {
+						this.errorMsg = "网络异常"
 						this.currentMainComponent = "error";
-						uni.showToast({
-							title: '网络异常！',
-							icon: 'none',
-							mask: true
-						})
-						uni.hideLoading()
 					}
 				});
 				let progressAdd = () => setTimeout(()=>{
@@ -562,7 +562,7 @@
 	}
 	.topbar {
 		width: 100%;
-		height: 100rpx;
+		height: 144rpx;
 		background-color: #FFFFFF;
 		border-bottom: #e5e5e5 2rpx solid;
 		display: flex;
@@ -571,10 +571,12 @@
 		align-items: center;
 		/*position: fixed;*/
 		z-index: 10;
-		font-size: 30rpx;
+		font-size: 40rpx;
+		font-family: PBold;
 		&-reset {
 			margin-right: 20rpx;
 			color: #6f75fe;
+			font-size: 36rpx;
 		 }
 		&-back {
 			background-image: url("../../static/back.png");
@@ -616,4 +618,27 @@
 		padding: 10%;
 	}
 
+	.errorBox {
+		width: 100%;
+		background-color: white;
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		/*align-items: center;*/
+		flex-grow: 1;
+	}
+
+	.errorIcon {
+		background-image: url('../../static/error.png');
+		height: 90rpx;
+		width: 100rpx;
+		background-size: cover;
+	}
+
+	.errorContent {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		flex-direction: column;
+	}
 </style>
