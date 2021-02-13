@@ -2,27 +2,47 @@
 	<view class="container" :style="[{ height: windowHeight - statusBarHeight + 'px' }]">
 		<view class="statusBar" :style="{ height: statusBarHeight + 'px' }"></view>
 		<view class="topbar" :style="[{ marginTop: statusBarHeight + 'px' }]">
-			<view class="topbar-back" @click.stop="back"></view>
-			<view style="font-family: PBold; font-weight: bold;">风格处理</view>
-			<view class="topbar-reset" @click.stop="cancel">清空</view>
+			<view style="width: 25%">
+				<view class="topbar-back" v-if="currentMainComponent === 'choose' || currentMainComponent === 'success'" @click.stop="back"></view>
+			</view>
+			<view style="width: 50%; text-align: center">
+				<view v-if="currentMainComponent === 'choose' || currentMainComponent === 'progress'" style="font-family: PBold; font-weight: bold;">风格处理</view>
+				<view v-if="currentMainComponent === 'success'" style="font-family: PBold; font-weight: bold; margin: auto">保存并分享</view>
+			</view>
+			<view style="width: 25%; text-align: end">
+				<view class="topbar-reset" v-if="currentMainComponent === 'choose'" @click.stop="cancel">清空</view>
+			</view>
 		</view>
 
-		<view id="boxBack" v-if="currentMainComponent === 'choose'">
+		<view class="boxBack" v-if="currentMainComponent === 'choose'">
 			<view id="chooseBox">
-				<image id="image" v-if="!showADD" v-bind:src="img" mode="aspectFill"></image>
+				<image class="image" v-if="!showADD" v-bind:src="img" mode="aspectFill"></image>
 				<view @click.stop="addImg" v-if="showADD" id="addMask">
 					<view id="addIcon"></view>
 					<view v-if="false" id="changeIcon"></view>
 				</view>
 			</view>
 		</view>
-		<view class="boxBack progress-popup" v-else-if="currentMainComponent === 'progress'" :style="[{height: windowHeight + 'px'}]">
-				<u-circle-progress :percent="percent" active-color="#6200ee" width="112" border-width="10" inactive-color="#fff"></u-circle-progress>
-			<view>正在生成风格化图像</view>
-			<view class="cancel-button">取消</view>
+		<view class="boxBack" v-else-if="currentMainComponent === 'progress'" :style="[{height: windowHeight + 'px'}]">
+			<view class="progress-popup">
+				<u-circle-progress :percent="percent" active-color="#6200ee" width="112" border-width="10" inactive-color="#fff">
+					<text>{{percent}}%</text>
+				</u-circle-progress>
+				<view>正在生成风格化图像</view>
+				<view class="cancel-button" @click="cancelTask">取消</view>
+			</view>
 		</view>
 		<view class="boxBack" v-else-if="currentMainComponent === 'success'">
-
+			<view class="successBox">
+				<view>
+					<image class="image" :src="img" mode="aspectFill"></image>
+				</view>
+				<view class="buttonGroup">
+					<view class="button" @click="saveImage">保存</view>
+					<view class="button" @click="share">分享</view>
+					<view class="button" @click="encrypted">加密</view>
+				</view>
+			</view>
 		</view>
 		<view class="boxBack" v-else-if="currentMainComponent === 'error'">
 
@@ -30,10 +50,10 @@
 		<view>
 			<cropper ref="cropper" :aspectRatio="1" :imagePath="img" @complete="complete" @cancel="cancel"></cropper>
 		</view>
-		<view id="bottomType">
+		<view id="bottomType" v-if="currentMainComponent === 'choose'">
 			<view class="funTypeContainer" v-for="(fun, id) in functionType" :key="id">
 				<view class="funTypeBoxWrap">
-					<view class="funTypeBox" :style="[{backgroundImage: fun.img}]" @click="funChoose(fun.name)"></view>
+					<view class="funTypeBox" :style="[{backgroundImage: 'url(' + fun.img + ')'}]" @click="funChoose(fun.name)"></view>
 				</view>
 				<view class="funTypeName">{{ fun.fun }}</view>
 			</view>
@@ -45,7 +65,7 @@
 				<view class="functionTitle">铅笔画</view>
 				<view class="inpputBox">
 					<view class="inputTitle">{{pencilData.color?'彩色':'黑白'}}模式</view>
-					<input-switch :checked="pencilData.color" @click="pencilData.color = !pencilData.color"/>
+					<input-switch :checked="pencilData.color" :click="() => pencilData.color = !pencilData.color"/>
 					<!--					<switch :checked="pencilData.color" @click="pencilData.color = !pencilData.color" style="transform:scale(0.7)"/>-->
 				</view>
 				<input-slider name="线条粗细" :value="pencilData.gammaS" :change="(e) => this.pencilData.gammaS = e.detail.value" :show_value="true" step="1" min="1" max="50"/>
@@ -60,9 +80,9 @@
 				<view class="functionTitle">油墨画</view>
 				<view class="inpputBox">
 					<view class="inputTitle" style="width: 400rpx">{{oilpaintData.model?'冬季转夏季':'夏季转冬季'}}模式</view>
-					<input-switch :checked="oilpaintData.model" @click="oilpaintData.model = !oilpaintData.model" />
+					<input-switch :checked="oilpaintData.model" :click="() => this.oilpaintData.model = !this.oilpaintData.model" />
 				</view>
-				<view class="submitButton" @click="oilpaintDataSubmit()">提交</view>
+				<view class="submitButton" @click="startProcess('oil')">提交</view>
 			</view>
 		</uni-popup>
 	</view>
@@ -84,28 +104,29 @@
 			return {
 				statusBarHeight: 0,
 				windowHeight: 0,
-				currentMainComponent: "choose",
+				currentMainComponent: "choose", //Todo:keep this 'choose'
 				percent: 1,
+				requestTask: undefined,
 				functionType: [
 					{
 						name: "pencil",
 						fun: '铅笔画',
-						img: ''
+						img: '../../static/pencil.png'
 					},
 					{
 						name: "oil",
 						fun: '油墨画',
-						img: ''
+						img: '../../static/oil.png'
 					},
 					{
 						name: "anime",
 						fun: '动漫风',
-						img: ''
+						img: '../../static/anime.png'
 					},
 					{
 						name: "cartoon",
 						fun: '卡通头像',
-						img: ''
+						img: '../../static/cartoon.png'
 					},
 				],
 				showADD: true,
@@ -182,10 +203,10 @@
 						// this.oilpaintFunction();
 						break;
 					case 'anime':
-						this.animeFunction();
+						this.startProcess("anime");
 						break;
 					case 'cartoon':
-						this.cartoonFunction();
+						this.startProcess("cartoon");
 						break;
 					default:
 						return;
@@ -233,7 +254,7 @@
 						return;
 				}
 				this.percent = 50;
-				uni.request({
+				this.requestTask = uni.request({
 					url: this.serverUrl + path,
 					method: 'POST',
 					header: {
@@ -248,8 +269,9 @@
 								icon: 'none',
 								mask: true
 							})
-						} else if (res.statusCode === 200 && res.data.status === 1) {
+						} else if (res.statusCode === 200) {
 							this.percent = 100;
+							if(this.currentMainComponent === "choose") return;
 							this.currentMainComponent = "success";
 							this.img = "data:image/png;base64," + res.data;
 							this.pencilData.flag = false;
@@ -269,12 +291,75 @@
 						uni.hideLoading()
 					}
 				});
-				// while(this.percent < 99) {
-				// 	setTimeout(()=>{
-				// 		this.percent += 1;
-				// 	}, 1500)
-				// }
+				let progressAdd = () => setTimeout(()=>{
+					if(this.percent < 99) {
+						this.percent += 1;
+						progressAdd();
+					}
+				}, 1500);
+				progressAdd();
 			},
+			cancelTask() {
+				if (this.requestTask != undefined) {
+					this.requestTask.abort();
+				}
+				this.currentMainComponent = "choose";
+			},
+			saveImage() {
+				base64ToPath(this.img).then((path) => {
+					uni.saveImageToPhotosAlbum({
+						filePath: path,
+						success: () => {
+							uni.showToast({
+								title: "保存成功",
+								icon: "none",
+								mask: false,
+								duration: 2000
+							})
+						},
+						fail: () => {
+							uni.showToast({
+								title: "保存失败",
+								icon: "none",
+								mask: false,
+								duration: 2000
+							})
+						}
+					})
+				});
+			},
+			share() {
+				base64ToPath(this.img).then((path) => {
+					uni.shareWithSystem({
+						type: "image",
+						imageUrl: path,
+						success: () => {
+							uni.showToast({
+								title: "分享成功",
+								icon: "none",
+								mask: false,
+								duration: 2000
+							})
+						},
+						fail: () => {
+							uni.showToast({
+								title: "分享失败",
+								icon: "none",
+								mask: false,
+								duration: 2000
+							})
+						}
+					});
+				});
+			},
+			encrypted() {
+				uni.showToast({
+					title: "暂不可用",
+					duration: 2000,
+					icon: "none"
+				})
+				//TODO: Not Implementation
+			}
 		},
 		components: {
 			UniPopup,
@@ -318,7 +403,7 @@
 		flex-shrink: 0;
 		position: absolute;
 	}
-	#boxBack {
+	.boxBack {
 		width: 100%;
 		background-color: inherit;
 		flex-grow: 1;
@@ -338,8 +423,8 @@
 		overflow: hidden;
 		position: relative;
 	}
-	#image {
-		width: 670rpx;
+	.image {
+		width: 100%;
 		height: 670rpx;
 	}
 	#addMask {
@@ -378,7 +463,7 @@
 		margin-left: 50rpx;
 	}
 	.funTypeBoxWrap {
-		border-radius: 22rpx;
+		border-radius: 32rpx;
 		border: 1px solid white;
 		box-shadow: 0 0 8rpx #888;
 		margin-bottom: 10rpx;
@@ -386,11 +471,13 @@
 	.funTypeBox {
 		width: 116rpx;
 		height: 116rpx;
-		background-color: #67C23A;
-		border-radius: 20rpx;
+		/*background-color: #67C23A;*/
+		border-radius: 30rpx;
 		flex-shrink: 0;
 		position: relative;
 		overflow: hidden;
+		background-position-x: center;
+		background-position-y: center;
 	}
 	.funTypeName {
 		/*width: 100%;*/
@@ -480,7 +567,7 @@
 		border-bottom: #e5e5e5 2rpx solid;
 		display: flex;
 		flex-direction: row;
-		justify-content: space-between;
+		justify-content: center;
 		align-items: center;
 		/*position: fixed;*/
 		z-index: 10;
@@ -504,17 +591,29 @@
 	}
 
 	.progress-popup {
-		display: flex;
-		flex-direction: column;
+		width: 100%;
 		background-color: white;
+		padding: 10%;
+		display: flex;
 		justify-content: center;
 		align-items: center;
-		padding: 10%;
-
+		flex-direction: column;
 	}
 
 	.cancel-button {
 		@extend .button;
+	}
+
+	.successBox {
+		background-color: #fff;
+		flex-grow: 1;
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+	}
+
+	.buttonGroup {
+		padding: 10%;
 	}
 
 </style>
