@@ -17,4 +17,12 @@ export default {
 	src: url('/static/uni.ttf');
 }
 /* #endif */
+@font-face {
+    font-family: PRegular;
+    src: url('/static/Alibaba-PuHuiTi-Regular.ttf');
+}
+@font-face {
+    font-family: PBold;
+    src: url('/static/Alibaba-PuHuiTi-Bold.ttf');
+}
 </style>

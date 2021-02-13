@@ -1,6 +1,6 @@
 {
 	"pages": [{
-		"path": "pages/index/index",
+		"path": "pages/styleConvert/styleConvert",
 		"style": {
 			"navigationStyle":"custom"
 		}
