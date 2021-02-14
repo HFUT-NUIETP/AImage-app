@@ -9,3 +9,19 @@
   line-height: 80rpx;
   text-align: center;
 }
+
+.topbar-icon {
+	height: 45rpx;
+	width: 45rpx;
+	background-size: cover;
+}
+
+.content-box {
+		width: 100%;
+		background-color: white;
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		/*align-items: center;*/
+		flex-grow: 1;
+	}
