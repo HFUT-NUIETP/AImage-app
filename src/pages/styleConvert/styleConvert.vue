@@ -173,7 +173,10 @@
 		},
 		methods: {
 			back() {
-				uni.navigateBack({});
+				uni.redirectTo({
+					url: "/pages/index/index",
+					complete: (e) => {console.log(e)},
+				});
 			},
 			addImg() {
 				uni.chooseImage({
