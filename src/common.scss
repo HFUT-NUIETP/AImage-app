@@ -10,11 +10,18 @@
   text-align: center;
 }
 
-.container {
+.topbar-icon {
+	height: 45rpx;
+	width: 45rpx;
+	background-size: cover;
+}
+
+.content-box {
 		width: 100%;
-		/* height: 1000rpx; */
-		background-color: #f3f3f3;
-		position: relative;
+		background-color: white;
 		display: flex;
 		flex-direction: column;
-}
+		justify-content: center;
+		/*align-items: center;*/
+		flex-grow: 1;
+	}

@@ -1,13 +1,17 @@
 <template>
-	<view class="topbar" :style="[{ marginTop: windowHeight - statusBarHeight + 'px' }]">
+	<view class="topbar" :style="[{ marginTop: statusBarHeight + 'px' }]">
 		<view style="width: 25%">
-			<slot name="left"></slot>
+			<view class="left">
+				<slot name="left"></slot>
+			</view>
 		</view>
 		<view style="width: 50%; text-align: center">
 			<slot name="center"></slot>
 		</view>
 		<view style="width: 25%; text-align: end">
-			<slot name="right"></slot>
+			<view class="right">
+				<slot name="right"></slot>
+			</view>
 		</view>
 	</view>
 </template>
@@ -20,7 +24,7 @@
 				windowHeight: 0
 			};
 		},
-		onLoad() {
+		mounted() {
 			setTimeout(() => {
 				//获取状态栏高度，setTimeout后才能调用uni.
 				uni.getSystemInfo({
@@ -35,7 +39,7 @@
 </script>
 
 <style lang="scss" scoped>
-.topbar {
+	.topbar {
 		width: 100%;
 		height: 144rpx;
 		background-color: #FFFFFF;
@@ -48,5 +52,12 @@
 		z-index: 10;
 		font-size: 40rpx;
 		font-family: PBold;
+	}
+	.left {
+		padding-left: 40rpx;
+	}
+	.right {
+		padding-right: 40rpx;
+		float: right;
 	}
 </style>
