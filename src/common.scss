@@ -9,3 +9,12 @@
   line-height: 80rpx;
   text-align: center;
 }
+
+.container {
+		width: 100%;
+		/* height: 1000rpx; */
+		background-color: #f3f3f3;
+		position: relative;
+		display: flex;
+		flex-direction: column;
+}

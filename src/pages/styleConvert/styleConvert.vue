@@ -1,19 +1,20 @@
 <template>
 	<view class="container" :style="[{ height: windowHeight - statusBarHeight + 'px' }]">
 		<view class="statusBar" :style="{ height: statusBarHeight + 'px' }"></view>
-		<view class="topbar" :style="[{ marginTop: statusBarHeight + 'px' }]">
-			<view style="width: 25%">
-				<view class="topbar-back" v-if="currentMainComponent === 'choose' || currentMainComponent === 'success'" @click.stop="back"></view>
-			</view>
-			<view style="width: 50%; text-align: center">
-				<view v-if="currentMainComponent === 'choose' || currentMainComponent === 'progress' || currentMainComponent === 'error'" style="font-weight: bold;">风格转换</view>
+		<topbar>
+			<template v-slot:left>
+				<view class="topbar-back" v-if="currentMainComponent === 'choose' || currentMainComponent === 'success'"
+				 @click.stop="back"></view>
+			</template>
+			<template v-slot:center>
+				<view v-if="currentMainComponent === 'choose' || currentMainComponent === 'progress' || currentMainComponent === 'error'"
+				 style="font-weight: bold;">风格转换</view>
 				<view v-if="currentMainComponent === 'success'" style="font-family: PBold; font-weight: bold; margin: auto">保存并分享</view>
-			</view>
-			<view style="width: 25%; text-align: end">
+			</template>
+			<template v-slot:right>
 				<view class="topbar-reset" v-if="currentMainComponent === 'choose'" @click.stop="cancel">清空</view>
-			</view>
-		</view>
-
+			</template>
+		</topbar>
 		<view class="boxBack" v-if="currentMainComponent === 'choose'">
 			<view id="chooseBox">
 				<image class="image" v-if="!showADD" v-bind:src="img" mode="aspectFill"></image>
@@ -73,12 +74,15 @@
 				<view class="functionTitle">铅笔画</view>
 				<view class="inpputBox">
 					<view class="inputTitle">{{pencilData.color?'彩色':'黑白'}}模式</view>
-					<input-switch :checked="pencilData.color" :click="() => pencilData.color = !pencilData.color"/>
+					<input-switch :checked="pencilData.color" :click="() => pencilData.color = !pencilData.color" />
 					<!--					<switch :checked="pencilData.color" @click="pencilData.color = !pencilData.color" style="transform:scale(0.7)"/>-->
 				</view>
-				<input-slider name="线条粗细" :value="pencilData.gammaS" :change="(e) => this.pencilData.gammaS = e.detail.value" :show_value="true" step="1" min="1" max="50"/>
-				<input-slider name="颜色深浅" :value="pencilData.gammaI" :change="(e) => this.pencilData.gammaI = e.detail.value" :show_value="true" step="1" min="1" max="50"/>
-				<input-slider name="图片质量" :value="pencilData.quality" :change="(e) => this.pencilData.gammaS = e.detail.value" :show_value="true" step="1" min="1" max="3"/>
+				<input-slider name="线条粗细" :value="pencilData.gammaS" :change="(e) => this.pencilData.gammaS = e.detail.value"
+				 :show_value="true" step="1" min="1" max="50" />
+				<input-slider name="颜色深浅" :value="pencilData.gammaI" :change="(e) => this.pencilData.gammaI = e.detail.value"
+				 :show_value="true" step="1" min="1" max="50" />
+				<input-slider name="图片质量" :value="pencilData.quality" :change="(e) => this.pencilData.gammaS = e.detail.value"
+				 :show_value="true" step="1" min="1" max="3" />
 				<view class="submitButton" @click="startProcess('pencil')">生成</view>
 			</view>
 		</uni-popup>
@@ -107,6 +111,7 @@
 	import InputSlider from "../../components/inputSlider";
 	import InputSwitch from "../../components/inputSwitch";
 	import UniPopup from "../../components/uni-popup/uni-popup";
+	import Topbar from "../../components/topbar";
 	export default {
 		data() {
 			return {
@@ -116,8 +121,7 @@
 				percent: 1,
 				requestTask: undefined,
 				errorMsg: "",
-				functionType: [
-					{
+				functionType: [{
 						name: "pencil",
 						fun: '铅笔画',
 						img: '../../static/pencil.png'
@@ -194,7 +198,7 @@
 				this.showADD = true;
 			},
 			funChoose(type) {
-				if(this.img === '') {
+				if (this.img === '') {
 					uni.showToast({
 						title: "请选择图片",
 						icon: "none",
@@ -277,7 +281,7 @@
 							this.currentMainComponent = "error";
 						} else if (res.statusCode === 200) {
 							this.percent = 100;
-							if(this.currentMainComponent === "choose") return;
+							if (this.currentMainComponent === "choose") return;
 							this.currentMainComponent = "success";
 							this.img = "data:image/png;base64," + res.data;
 							this.pencilData.flag = false;
@@ -291,8 +295,8 @@
 						this.currentMainComponent = "error";
 					}
 				});
-				let progressAdd = () => setTimeout(()=>{
-					if(this.percent < 99) {
+				let progressAdd = () => setTimeout(() => {
+					if (this.percent < 99) {
 						this.percent += 1;
 						progressAdd();
 					}
@@ -366,20 +370,13 @@
 			InputSwitch,
 			InputSlider,
 			Cropper,
-			uCircleProgress
+			uCircleProgress,
+			Topbar
 		}
 	}
 </script>
 
 <style lang="scss" scoped>
-	.container {
-		width: 100%;
-		/* height: 1000rpx; */
-		background-color: #f3f3f3;
-		position: relative;
-		display: flex;
-		flex-direction: column;
-	}
 	.statusBar {
 		background-image: linear-gradient(to right, #ededed, #6d89c3);
 		width: 750px;
@@ -387,6 +384,7 @@
 		top: 0;
 		z-index: 999;
 	}
+
 	#menu {
 		width: 65rpx;
 		height: 65rpx;
@@ -396,6 +394,7 @@
 		right: 20rpx;
 		transform: translateY(-50%);
 	}
+
 	.menuButton {
 		width: 25rpx;
 		height: 25rpx;
@@ -403,6 +402,7 @@
 		flex-shrink: 0;
 		position: absolute;
 	}
+
 	.boxBack {
 		width: 100%;
 		background-color: inherit;
@@ -410,6 +410,7 @@
 		display: flex;
 		/*padding: 200rpx 0 0 0;*/
 	}
+
 	#chooseBox {
 		width: 100%;
 		/*height: 900rpx;*/
@@ -423,10 +424,12 @@
 		overflow: hidden;
 		position: relative;
 	}
+
 	.image {
 		width: 100%;
 		height: 670rpx;
 	}
+
 	#addMask {
 		width: 100%;
 		height: 100%;
@@ -436,6 +439,7 @@
 		/*top: 0;*/
 		/*left: 0;*/
 	}
+
 	#addIcon {
 		width: 100rpx;
 		height: 100rpx;
@@ -447,6 +451,7 @@
 		align-items: center;
 		color: #FFFFFF;
 	}
+
 	#bottomType {
 		padding-top: 10rpx;
 		width: 100%;
@@ -459,15 +464,18 @@
 		overflow-x: scroll;
 		z-index: 10;
 	}
+
 	.funTypeContainer {
 		margin-left: 50rpx;
 	}
+
 	.funTypeBoxWrap {
 		border-radius: 32rpx;
 		border: 1px solid white;
 		box-shadow: 0 0 8rpx #888;
 		margin-bottom: 10rpx;
 	}
+
 	.funTypeBox {
 		width: 116rpx;
 		height: 116rpx;
@@ -479,6 +487,7 @@
 		background-position-x: center;
 		background-position-y: center;
 	}
+
 	.funTypeName {
 		/*width: 100%;*/
 		height: 60rpx;
@@ -547,7 +556,9 @@
 	.inputSlider {
 		width: 70%;
 	}
-@import "../../common";
+
+	@import "../../common";
+
 	.submitButton {
 		@extend .button
 		/*width: 90%;*/
@@ -560,6 +571,7 @@
 		/*line-height: 80rpx;*/
 		/*text-align: center;*/
 	}
+
 	.topbar {
 		width: 100%;
 		height: 144rpx;
@@ -573,11 +585,13 @@
 		z-index: 10;
 		font-size: 40rpx;
 		font-family: PBold;
+
 		&-reset {
 			margin-right: 20rpx;
 			color: #6f75fe;
 			font-size: 36rpx;
-		 }
+		}
+
 		&-back {
 			background-image: url("../../static/back.png");
 			height: 45rpx;
