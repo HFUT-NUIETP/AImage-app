@@ -1,5 +1,5 @@
 <template>
-	<view class="container" :style="[{ height: windowHeight - statusBarHeight + 'px' }]">
+	<Layout>
 		<view class="statusBar" :style="{ height: statusBarHeight + 'px' }"></view>
 		<topbar>
 			<template v-slot:left>
@@ -97,7 +97,7 @@
 				<view class="submitButton" @click="startProcess('oil')">提交</view>
 			</view>
 		</uni-popup>
-	</view>
+	</Layout>
 </template>
 
 <script>
@@ -112,6 +112,7 @@
 	import InputSwitch from "../../components/inputSwitch";
 	import UniPopup from "../../components/uni-popup/uni-popup";
 	import Topbar from "../../components/topbar";
+	import Layout from "../../components/layout";
 	export default {
 		data() {
 			return {
@@ -366,6 +367,7 @@
 			}
 		},
 		components: {
+			Layout,
 			UniPopup,
 			InputSwitch,
 			InputSlider,
@@ -377,6 +379,7 @@
 </script>
 
 <style lang="scss" scoped>
+	@import "../../common";
 	.statusBar {
 		background-image: linear-gradient(to right, #ededed, #6d89c3);
 		width: 750px;
@@ -594,10 +597,7 @@
 
 		&-back {
 			background-image: url("../../static/back.png");
-			height: 45rpx;
-			width: 45rpx;
-			background-size: cover;
-			margin-left: 20rpx;
+			@extend .topbar-icon
 		}
 	}
 
