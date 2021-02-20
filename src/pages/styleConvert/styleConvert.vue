@@ -10,7 +10,7 @@
 				<view v-if="currentMainComponent === 'success'">保存并分享</view>
 			</template>
 			<template v-slot:right>
-				<view class="topbar-reset" v-if="currentMainComponent === 'choose'" @click.stop="cancel">清空</view>
+				<view class="topbar-shortcut" v-if="currentMainComponent === 'choose'" @click.stop="cancel">清空</view>
 			</template>
 		</topbar>
 		<view class="boxBack" v-if="currentMainComponent === 'choose'">
@@ -592,11 +592,6 @@
 		font-size: 40rpx;
 		font-family: PBold;
 
-		&-reset {
-			margin-right: 20rpx;
-			color: #6f75fe;
-			font-size: 36rpx;
-		}
 
 		&-back {
 			background-image: url("../../static/back.png");
