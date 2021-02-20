@@ -6,9 +6,8 @@
         <topbar-back v-if="currentMainComponent === 'choose' || currentMainComponent === 'success'"></topbar-back>
 			</template>
 			<template v-slot:center>
-				<view v-if="currentMainComponent === 'choose' || currentMainComponent === 'progress' || currentMainComponent === 'error'"
-				 style="font-weight: bold;">风格转换</view>
-				<view v-if="currentMainComponent === 'success'" style="font-family: PBold; font-weight: bold; margin: auto">保存并分享</view>
+				<view v-if="currentMainComponent === 'choose' || currentMainComponent === 'progress' || currentMainComponent === 'error'">风格转换</view>
+				<view v-if="currentMainComponent === 'success'">保存并分享</view>
 			</template>
 			<template v-slot:right>
 				<view class="topbar-reset" v-if="currentMainComponent === 'choose'" @click.stop="cancel">清空</view>
