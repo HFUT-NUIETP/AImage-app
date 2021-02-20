@@ -3,8 +3,7 @@
 		<view class="statusBar" :style="{ height: statusBarHeight + 'px' }"></view>
 		<topbar>
 			<template v-slot:left>
-				<view class="topbar-back" v-if="currentMainComponent === 'choose' || currentMainComponent === 'success'"
-				 @click.stop="back"></view>
+        <topbar-back v-if="currentMainComponent === 'choose' || currentMainComponent === 'success'"></topbar-back>
 			</template>
 			<template v-slot:center>
 				<view v-if="currentMainComponent === 'choose' || currentMainComponent === 'progress' || currentMainComponent === 'error'"
@@ -113,6 +112,7 @@
 	import UniPopup from "../../components/uni-popup/uni-popup";
 	import Topbar from "../../components/topbar";
 	import Layout from "../../components/layout";
+  import TopbarBack from "@/components/topbar-back";
 	export default {
 		data() {
 			return {
@@ -370,6 +370,7 @@
 			}
 		},
 		components: {
+      TopbarBack,
 			Layout,
 			UniPopup,
 			InputSwitch,
