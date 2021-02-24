@@ -1,6 +1,6 @@
 <template>
     <view class="inpputBox">
-        <view class="inputTitle">{{name}}</view>
+        <view class="inputTitle" v-if="name !== ''">{{name}}</view>
         <slider class="inputSlider" :value="value" @change="change" :show-value="show_value" :step="step"
                 :min="min" :max="max" activeColor="#6200ee" backgroundColo="#c39ef9" block-size="14" block-color="#6200ee"/>
     </view>
@@ -19,7 +19,7 @@
         height: 120rpx;
         display: flex;
         flex-direction: row;
-        justify-content: space-between;
+        justify-content: center;
         align-items: center;
     }
 

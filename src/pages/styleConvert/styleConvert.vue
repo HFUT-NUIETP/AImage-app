@@ -599,11 +599,6 @@
 		}
 	}
 
-	.popup {
-		background-color: #fff;
-		padding: 10%;
-	}
-
 	.progress-popup {
 		width: 100%;
 		background-color: white;

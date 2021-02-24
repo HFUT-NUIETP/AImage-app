@@ -4,7 +4,7 @@
   margin: 50rpx auto;
   background-color: #7076fe;
   color: #FFFFFF;
-  font-size: 40rpx;
+  font-size: 36rpx;
   border-radius: 40rpx;
   line-height: 80rpx;
   text-align: center;
@@ -30,6 +30,11 @@
 	margin-right: 20rpx;
 	color: #6f75fe;
 	font-size: 36rpx;
+}
+
+.popup {
+	background-color: #fff;
+	padding: 10%;
 }
 
 $bottom-border: #e5e5e5 2rpx solid;
