@@ -1,6 +1,6 @@
 <template>
 	<view class="draw">
-		<canvas canvas-id="myDraw" disable-scroll="true" style="width: 750rpx; height: 750rpx" @touchstart="onStart" @touchmove="onMove" @touchend="drawEnd"></canvas>
+		<canvas canvas-id="myDraw" disable-scroll="true" style="width: 750rpx; height: 750rpx" @touchstart="onStart" @touchmove="onMove"></canvas>
 	</view>
 </template>
 
@@ -210,9 +210,6 @@
           this.can.draw(this.isDraw);
 				}
 			},
-      drawEnd() {
-        // this.s = [];
-      },
 			drawBG: function () {
         this.can.drawImage("/static/default_input.png", 0, 0, uni.upx2px(750), uni.upx2px(750));
 			},
