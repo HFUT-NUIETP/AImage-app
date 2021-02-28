@@ -45,13 +45,13 @@
           this.onDraw();
         }
 			},
-			save: function (e, w=uni.upx2px(750), h=uni.upx2px(750)) {
+			save: function (e) {
 				let that = this
 				uni.canvasToTempFilePath({
 				  x: 0,
 				  y: 0,
-				  destWidth: w,
-				  destHeight: h,
+				  destWidth: 512,
+				  destHeight: 512,
 				  canvasId: 'myDraw',
 				  success: function(res) {
 					that.$emit('on-save', res.tempFilePath);
