@@ -24,30 +24,8 @@
 		</view>
     <progressing v-else-if="currentMainComponent === 'progress'"
     :cancel-task="cancelTask" detail="正在生成风格化图像" :percent="percent"></progressing>
-<!--		<view class="boxBack" v-else-if="currentMainComponent === 'success'">-->
-<!--			<view class="successBox">-->
-<!--				<view>-->
-<!--					<image class="image" :src="img" mode="aspectFill"></image>-->
-<!--				</view>-->
-<!--				<view class="buttonGroup">-->
-<!--					<view class="button" @click="saveImage">保存</view>-->
-<!--					<view class="button" @click="share">分享</view>-->
-<!--					<view class="button" @click="encrypted">加密</view>-->
-<!--				</view>-->
-<!--			</view>-->
-<!--		</view>-->
     <success v-else-if="currentMainComponent === 'success'" :img="img"></success>
-		<view class="boxBack" v-else-if="currentMainComponent === 'error'">
-			<view class="errorBox">
-				<view class="errorContent">
-					<view class="errorIcon"></view>
-					<view style="font-size: 36rpx; margin-top: 100rpx">错误: {{errorMsg}}</view>
-				</view>
-				<view class="buttonGroup">
-					<view class="button" @click="cancelTask">确认</view>
-				</view>
-			</view>
-		</view>
+    <error v-else-if="currentMainComponent === 'error'" :error-msg="errorMsg" :cancel-task="cancelTask"></error>
 		<view>
 			<cropper ref="cropper" :aspectRatio="1" :imagePath="img" @complete="complete" @cancel="cancel"></cropper>
 		</view>
@@ -107,6 +85,7 @@
   import TopbarBack from "@/components/topbar-back";
   import Progressing from "@/components/progressing";
   import Success from "@/components/success";
+  import Error from "@/components/error";
 	export default {
 		data() {
 			return {
@@ -309,6 +288,7 @@
 			},
 		},
 		components: {
+      Error,
       Success,
       Progressing,
       TopbarBack,
@@ -537,42 +517,4 @@
 		}
 	}
 
-	.progress-popup {
-		width: 100%;
-		background-color: white;
-		padding: 10%;
-		display: flex;
-		justify-content: center;
-		align-items: center;
-		flex-direction: column;
-	}
-
-
-	.buttonGroup {
-		padding: 10%;
-	}
-
-	.errorBox {
-		width: 100%;
-		background-color: white;
-		display: flex;
-		flex-direction: column;
-		justify-content: center;
-		/*align-items: center;*/
-		flex-grow: 1;
-	}
-
-	.errorIcon {
-		background-image: url('../../static/error.png');
-		height: 90rpx;
-		width: 100rpx;
-		background-size: cover;
-	}
-
-	.errorContent {
-		display: flex;
-		justify-content: center;
-		align-items: center;
-		flex-direction: column;
-	}
 </style>
