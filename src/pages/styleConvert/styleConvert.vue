@@ -22,29 +22,21 @@
 				</view>
 			</view>
 		</view>
-<!--		<view class="boxBack" v-else-if="currentMainComponent === 'progress'" :style="[{height: windowHeight + 'px'}]">-->
-<!--			<view class="progress-popup">-->
-<!--				<u-circle-progress :percent="percent" active-color="#6200ee" width="112" border-width="10" inactive-color="#fff">-->
-<!--					<text>{{percent}}%</text>-->
-<!--				</u-circle-progress>-->
-<!--				<view>正在生成风格化图像</view>-->
-<!--				<view class="cancel-button" @click="cancelTask">取消</view>-->
+    <progressing v-else-if="currentMainComponent === 'progress'"
+    :cancel-task="cancelTask" detail="正在生成风格化图像" :percent="percent"></progressing>
+<!--		<view class="boxBack" v-else-if="currentMainComponent === 'success'">-->
+<!--			<view class="successBox">-->
+<!--				<view>-->
+<!--					<image class="image" :src="img" mode="aspectFill"></image>-->
+<!--				</view>-->
+<!--				<view class="buttonGroup">-->
+<!--					<view class="button" @click="saveImage">保存</view>-->
+<!--					<view class="button" @click="share">分享</view>-->
+<!--					<view class="button" @click="encrypted">加密</view>-->
+<!--				</view>-->
 <!--			</view>-->
 <!--		</view>-->
-    <progressing v-else-if="currentMainComponent === 'progress'"
-    :cancel-task="cancelTask" :detail="正在生成风格化图像" :percent="percent"></progressing>
-		<view class="boxBack" v-else-if="currentMainComponent === 'success'">
-			<view class="successBox">
-				<view>
-					<image class="image" :src="img" mode="aspectFill"></image>
-				</view>
-				<view class="buttonGroup">
-					<view class="button" @click="saveImage">保存</view>
-					<view class="button" @click="share">分享</view>
-					<view class="button" @click="encrypted">加密</view>
-				</view>
-			</view>
-		</view>
+    <success v-else-if="currentMainComponent === 'success'" :img="img"></success>
 		<view class="boxBack" v-else-if="currentMainComponent === 'error'">
 			<view class="errorBox">
 				<view class="errorContent">
@@ -114,6 +106,7 @@
 	import Layout from "../../components/layout";
   import TopbarBack from "@/components/topbar-back";
   import Progressing from "@/components/progressing";
+  import Success from "@/components/success";
 	export default {
 		data() {
 			return {
@@ -314,63 +307,9 @@
 				}
 				this.currentMainComponent = "choose";
 			},
-			saveImage() {
-				base64ToPath(this.img).then((path) => {
-					uni.saveImageToPhotosAlbum({
-						filePath: path,
-						success: () => {
-							uni.showToast({
-								title: "保存成功",
-								icon: "none",
-								mask: false,
-								duration: 2000
-							})
-						},
-						fail: () => {
-							uni.showToast({
-								title: "保存失败",
-								icon: "none",
-								mask: false,
-								duration: 2000
-							})
-						}
-					})
-				});
-			},
-			share() {
-				base64ToPath(this.img).then((path) => {
-					uni.shareWithSystem({
-						type: "image",
-						imageUrl: path,
-						success: () => {
-							uni.showToast({
-								title: "分享成功",
-								icon: "none",
-								mask: false,
-								duration: 2000
-							})
-						},
-						fail: () => {
-							uni.showToast({
-								title: "分享失败",
-								icon: "none",
-								mask: false,
-								duration: 2000
-							})
-						}
-					});
-				});
-			},
-			encrypted() {
-				uni.showToast({
-					title: "暂不可用",
-					duration: 2000,
-					icon: "none"
-				})
-				//TODO: Not Implementation
-			}
 		},
 		components: {
+      Success,
       Progressing,
       TopbarBack,
 			Layout,
@@ -433,10 +372,7 @@
 		position: relative;
 	}
 
-	.image {
-		width: 100%;
-		height: 670rpx;
-	}
+
 
 	#addMask {
 		width: 100%;
@@ -611,13 +547,6 @@
 		flex-direction: column;
 	}
 
-	.successBox {
-		background-color: #fff;
-		flex-grow: 1;
-		display: flex;
-		flex-direction: column;
-		justify-content: center;
-	}
 
 	.buttonGroup {
 		padding: 10%;
