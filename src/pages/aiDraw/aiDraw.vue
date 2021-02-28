@@ -5,18 +5,22 @@
       <topbar-back></topbar-back>
     </template>
     <template v-slot:center>
-      <view>AI 创作</view>
+      <view v-if="currentMainComponent === 'draw'">AI 创作</view>
+      <view v-else-if="currentMainComponent === 'success'">保存并分享</view>
     </template>
     <template v-slot:right>
-      <view class="topbar-shortcut">生成</view>
+      <view class="topbar-shortcut" @click="startAIDraw" v-if="currentMainComponent === 'draw'">生成</view>
     </template>
   </Topbar>
-  <view class="draw-box">
+  <view class="draw-box" v-if="currentMainComponent === 'draw'">
     <draw ref="draw" v-if="!current.destroy" :color="canvasColor"
-          v-on:on-save="(path) => {current.img = path; imgs.push(path);}" :img="current.img"
+          v-on:on-save="aiDrawCallback($event)"
           :use-method="current.method" :size="current.size"></draw>
   </view>
-  <view class="draw-function">
+  <progressing v-else-if="currentMainComponent === 'progress'" :percent="percent" detail="AI 正在创作中"></progressing>
+  <success v-else-if="currentMainComponent === 'success'" :img="img"></success>
+  <error v-else-if="currentMainComponent === 'error'" :error-msg="errorMsg" :cancel-task="cancelTask"></error>
+  <view class="draw-function" v-if="currentMainComponent === 'draw'">
     <view class="draw-palette" @click="popupPalette" :style="[{backgroundColor: canvasColor}]">{{colorName}}</view>
     <view v-for="f in functions" :style="[{backgroundImage: `url(${getFuncColor(f)}.png)`, width: f.width, height: f.height}]" @click="callFunc(f)"></view>
   </view>
@@ -59,9 +63,13 @@ import TopbarBack from "@/components/topbar-back";
 import Draw from "@/components/draw/draw"
 import UniPopup from "@/components/uni-popup/uni-popup";
 import InputSlider from "@/components/inputSlider";
+import Progressing from "@/components/progressing";
+import {base64ToPath} from "@/js_sdk/gsq-image-tools/image-tools";
+import Success from "@/components/success";
+import Error from "@/components/error";
 export default {
   name: "aiDraw",
-  components: {InputSlider, UniPopup, TopbarBack, Topbar, Layout, Draw},
+  components: {Error, Success, Progressing, InputSlider, UniPopup, TopbarBack, Topbar, Layout, Draw},
   mounted() {
   },
   data() {
@@ -95,15 +103,18 @@ export default {
           height: "60rpx"
         },
       ],
+      currentMainComponent: "draw", //Todo: keep this 'draw',
+      percent: 1,
+      requestTask: undefined,
+      errorMsg: "",
+      img: "",
       current: {
         optionName: "landscape",
         color: "161,161,100#石头",
-        img: "/static/default_input.png",
         destroy: false,
         method: "paint",
         size: 8
       },
-      imgs: [],
       colors: [
         {
           type: "建筑物",
@@ -300,7 +311,65 @@ export default {
     },
     popupPalette() {
       this.$refs.palette.open()
-    }
+    },
+    startAIDraw() {
+      this.$refs.draw.save();
+    },
+    aiDrawCallback(path) {
+      const callAPi = (data) => {
+        data.img = data.img.split(",")[1];
+        this.requestTask = uni.request({
+          url: this.serverUrl + "paint",
+          method: 'POST',
+          header: {
+            'content-type': 'application/x-www-form-urlencoded'
+          },
+          data: data,
+          success: (res) => {
+            if (res.statusCode === 200) {
+              this.percent = 100;
+              if (this.currentMainComponent === "draw") return;
+              this.currentMainComponent = "success";
+              this.img = "data:image/png;base64," + res.data;
+            } else {
+              this.errorMsg = "内部错误";
+              this.currentMainComponent = "error";
+            }
+          },
+          fail: (res) => {
+            this.errorMsg = "网络异常"
+            this.currentMainComponent = "error";
+          }
+        });
+        let progressAdd = () => setTimeout(() => {
+          if (this.percent < 99) {
+            this.percent += 1;
+            progressAdd();
+          }
+        }, 1500);
+        progressAdd();
+      }
+      this.currentMainComponent = "progress";
+      let data = {
+        'img': path
+      };
+      if (path.indexOf("base64") !== -1) {
+        this.percent = 25;
+        callAPi(data);
+      } else {
+        pathToBase64(path).then((res) => {
+          data.img = res;
+          this.percent = 25;
+          callAPi(data);
+        })
+      }
+    },
+    cancelTask() {
+      if (this.requestTask !== undefined) {
+        this.requestTask.abort();
+      }
+      this.currentMainComponent = "draw";
+    },
   },
   computed: {
     options: function () {
