@@ -22,15 +22,17 @@
 				</view>
 			</view>
 		</view>
-		<view class="boxBack" v-else-if="currentMainComponent === 'progress'" :style="[{height: windowHeight + 'px'}]">
-			<view class="progress-popup">
-				<u-circle-progress :percent="percent" active-color="#6200ee" width="112" border-width="10" inactive-color="#fff">
-					<text>{{percent}}%</text>
-				</u-circle-progress>
-				<view>正在生成风格化图像</view>
-				<view class="cancel-button" @click="cancelTask">取消</view>
-			</view>
-		</view>
+<!--		<view class="boxBack" v-else-if="currentMainComponent === 'progress'" :style="[{height: windowHeight + 'px'}]">-->
+<!--			<view class="progress-popup">-->
+<!--				<u-circle-progress :percent="percent" active-color="#6200ee" width="112" border-width="10" inactive-color="#fff">-->
+<!--					<text>{{percent}}%</text>-->
+<!--				</u-circle-progress>-->
+<!--				<view>正在生成风格化图像</view>-->
+<!--				<view class="cancel-button" @click="cancelTask">取消</view>-->
+<!--			</view>-->
+<!--		</view>-->
+    <progressing v-else-if="currentMainComponent === 'progress'"
+    :cancel-task="cancelTask" :detail="正在生成风格化图像" :percent="percent"></progressing>
 		<view class="boxBack" v-else-if="currentMainComponent === 'success'">
 			<view class="successBox">
 				<view>
@@ -100,7 +102,6 @@
 
 <script>
 	import Cropper from '../../components/yankai-cropper/cropper.vue';
-	import uCircleProgress from 'uview-ui/components/u-circle-progress/u-circle-progress.vue'
 	// import md5 from 'md5.js'
 	import {
 		pathToBase64,
@@ -112,6 +113,7 @@
 	import Topbar from "../../components/topbar";
 	import Layout from "../../components/layout";
   import TopbarBack from "@/components/topbar-back";
+  import Progressing from "@/components/progressing";
 	export default {
 		data() {
 			return {
@@ -369,13 +371,13 @@
 			}
 		},
 		components: {
+      Progressing,
       TopbarBack,
 			Layout,
 			UniPopup,
 			InputSwitch,
 			InputSlider,
 			Cropper,
-			uCircleProgress,
 			Topbar
 		}
 	}
@@ -607,10 +609,6 @@
 		justify-content: center;
 		align-items: center;
 		flex-direction: column;
-	}
-
-	.cancel-button {
-		@extend .button;
 	}
 
 	.successBox {
