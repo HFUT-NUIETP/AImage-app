@@ -3,16 +3,14 @@
 		<view class="statusBar" :style="{ height: statusBarHeight + 'px' }"></view>
 		<topbar>
 			<template v-slot:left>
-				<view class="topbar-back" v-if="currentMainComponent === 'choose' || currentMainComponent === 'success'"
-				 @click.stop="back"></view>
+        <topbar-back v-if="currentMainComponent === 'choose' || currentMainComponent === 'success'"></topbar-back>
 			</template>
 			<template v-slot:center>
-				<view v-if="currentMainComponent === 'choose' || currentMainComponent === 'progress' || currentMainComponent === 'error'"
-				 style="font-weight: bold;">风格转换</view>
-				<view v-if="currentMainComponent === 'success'" style="font-family: PBold; font-weight: bold; margin: auto">保存并分享</view>
+				<view v-if="currentMainComponent === 'choose' || currentMainComponent === 'progress' || currentMainComponent === 'error'">风格转换</view>
+				<view v-if="currentMainComponent === 'success'">保存并分享</view>
 			</template>
 			<template v-slot:right>
-				<view class="topbar-reset" v-if="currentMainComponent === 'choose'" @click.stop="cancel">清空</view>
+				<view class="topbar-shortcut" v-if="currentMainComponent === 'choose'" @click.stop="cancel">清空</view>
 			</template>
 		</topbar>
 		<view class="boxBack" v-if="currentMainComponent === 'choose'">
@@ -24,38 +22,10 @@
 				</view>
 			</view>
 		</view>
-		<view class="boxBack" v-else-if="currentMainComponent === 'progress'" :style="[{height: windowHeight + 'px'}]">
-			<view class="progress-popup">
-				<u-circle-progress :percent="percent" active-color="#6200ee" width="112" border-width="10" inactive-color="#fff">
-					<text>{{percent}}%</text>
-				</u-circle-progress>
-				<view>正在生成风格化图像</view>
-				<view class="cancel-button" @click="cancelTask">取消</view>
-			</view>
-		</view>
-		<view class="boxBack" v-else-if="currentMainComponent === 'success'">
-			<view class="successBox">
-				<view>
-					<image class="image" :src="img" mode="aspectFill"></image>
-				</view>
-				<view class="buttonGroup">
-					<view class="button" @click="saveImage">保存</view>
-					<view class="button" @click="share">分享</view>
-					<view class="button" @click="encrypted">加密</view>
-				</view>
-			</view>
-		</view>
-		<view class="boxBack" v-else-if="currentMainComponent === 'error'">
-			<view class="errorBox">
-				<view class="errorContent">
-					<view class="errorIcon"></view>
-					<view style="font-size: 36rpx; margin-top: 100rpx">错误: {{errorMsg}}</view>
-				</view>
-				<view class="buttonGroup">
-					<view class="button" @click="cancelTask">确认</view>
-				</view>
-			</view>
-		</view>
+    <progressing v-else-if="currentMainComponent === 'progress'"
+    :cancel-task="cancelTask" detail="正在生成风格化图像" :percent="percent"></progressing>
+    <success v-else-if="currentMainComponent === 'success'" :img="img"></success>
+    <error v-else-if="currentMainComponent === 'error'" :error-msg="errorMsg" :cancel-task="cancelTask"></error>
 		<view>
 			<cropper ref="cropper" :aspectRatio="1" :imagePath="img" @complete="complete" @cancel="cancel"></cropper>
 		</view>
@@ -102,7 +72,6 @@
 
 <script>
 	import Cropper from '../../components/yankai-cropper/cropper.vue';
-	import uCircleProgress from 'uview-ui/components/u-circle-progress/u-circle-progress.vue'
 	// import md5 from 'md5.js'
 	import {
 		pathToBase64,
@@ -113,6 +82,10 @@
 	import UniPopup from "../../components/uni-popup/uni-popup";
 	import Topbar from "../../components/topbar";
 	import Layout from "../../components/layout";
+  import TopbarBack from "@/components/topbar-back";
+  import Progressing from "@/components/progressing";
+  import Success from "@/components/success";
+  import Error from "@/components/error";
 	export default {
 		data() {
 			return {
@@ -313,69 +286,17 @@
 				}
 				this.currentMainComponent = "choose";
 			},
-			saveImage() {
-				base64ToPath(this.img).then((path) => {
-					uni.saveImageToPhotosAlbum({
-						filePath: path,
-						success: () => {
-							uni.showToast({
-								title: "保存成功",
-								icon: "none",
-								mask: false,
-								duration: 2000
-							})
-						},
-						fail: () => {
-							uni.showToast({
-								title: "保存失败",
-								icon: "none",
-								mask: false,
-								duration: 2000
-							})
-						}
-					})
-				});
-			},
-			share() {
-				base64ToPath(this.img).then((path) => {
-					uni.shareWithSystem({
-						type: "image",
-						imageUrl: path,
-						success: () => {
-							uni.showToast({
-								title: "分享成功",
-								icon: "none",
-								mask: false,
-								duration: 2000
-							})
-						},
-						fail: () => {
-							uni.showToast({
-								title: "分享失败",
-								icon: "none",
-								mask: false,
-								duration: 2000
-							})
-						}
-					});
-				});
-			},
-			encrypted() {
-				uni.showToast({
-					title: "暂不可用",
-					duration: 2000,
-					icon: "none"
-				})
-				//TODO: Not Implementation
-			}
 		},
 		components: {
+      Error,
+      Success,
+      Progressing,
+      TopbarBack,
 			Layout,
 			UniPopup,
 			InputSwitch,
 			InputSlider,
 			Cropper,
-			uCircleProgress,
 			Topbar
 		}
 	}
@@ -431,10 +352,7 @@
 		position: relative;
 	}
 
-	.image {
-		width: 100%;
-		height: 670rpx;
-	}
+
 
 	#addMask {
 		width: 100%;
@@ -592,11 +510,6 @@
 		font-size: 40rpx;
 		font-family: PBold;
 
-		&-reset {
-			margin-right: 20rpx;
-			color: #6f75fe;
-			font-size: 36rpx;
-		}
 
 		&-back {
 			background-image: url("../../static/back.png");
@@ -604,58 +517,4 @@
 		}
 	}
 
-	.popup {
-		background-color: #fff;
-		padding: 10%;
-	}
-
-	.progress-popup {
-		width: 100%;
-		background-color: white;
-		padding: 10%;
-		display: flex;
-		justify-content: center;
-		align-items: center;
-		flex-direction: column;
-	}
-
-	.cancel-button {
-		@extend .button;
-	}
-
-	.successBox {
-		background-color: #fff;
-		flex-grow: 1;
-		display: flex;
-		flex-direction: column;
-		justify-content: center;
-	}
-
-	.buttonGroup {
-		padding: 10%;
-	}
-
-	.errorBox {
-		width: 100%;
-		background-color: white;
-		display: flex;
-		flex-direction: column;
-		justify-content: center;
-		/*align-items: center;*/
-		flex-grow: 1;
-	}
-
-	.errorIcon {
-		background-image: url('../../static/error.png');
-		height: 90rpx;
-		width: 100rpx;
-		background-size: cover;
-	}
-
-	.errorContent {
-		display: flex;
-		justify-content: center;
-		align-items: center;
-		flex-direction: column;
-	}
 </style>

@@ -12,7 +12,7 @@
 			</template>
 		</Topbar>
 		<view class="func-box">
-			<navigator v-for="func in funcList" :url="func.url" open-type="redirect">
+			<navigator v-for="func in funcList" :url="func.url" open-type="navigate">
 				<view class="func" :style="[{backgroundImage: 'linear-gradient(180deg, '+ func.color[0] + ',' + func.color[1] + ')'}]">
 					<view class="func-icon" :style="[{backgroundImage: func.icon}, {width: func.width}, {height: func.height}]"></view>
 					<view>{{func.name}}</view>
@@ -61,7 +61,7 @@
 					{
 						name: "AI 创作",
 						color: ["#2355f6", "#7da3ff"],
-						url: "#",
+						url: "/pages/aiDraw/aiDraw",
 						icon: "url('../../static/ai-icon.png')",
 						width: "108rpx",
 						height: "108rpx"

@@ -5,7 +5,7 @@
 				<slot name="left"></slot>
 			</view>
 		</view>
-		<view style="width: 50%; text-align: center">
+		<view style="width: 50%; text-align: center; font-weight: bold;">
 			<slot name="center"></slot>
 		</view>
 		<view style="width: 25%; text-align: end">
