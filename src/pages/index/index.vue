@@ -77,7 +77,7 @@
 					{
 						name: "版权保护",
 						color: ["#aa44f8", "#b879ff"],
-						url: "#",
+						url: "/pages/encrypt/encrypt",
 						icon: "url('../../static/encrypted-icon.png')",
 						width: "116rpx",
 						height: "148rpx"
