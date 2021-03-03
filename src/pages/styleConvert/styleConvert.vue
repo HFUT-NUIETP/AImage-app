@@ -13,7 +13,7 @@
 				<view class="topbar-shortcut" v-if="currentMainComponent === 'choose'" @click.stop="cancel">清空</view>
 			</template>
 		</topbar>
-    <img-picker v-if="currentMainComponent === 'choose'" :img="img" v-on:img-change="imgChange($event)"></img-picker>
+    <img-picker ref="picker" v-if="currentMainComponent === 'choose'" :img="img" v-on:img-change="imgChange($event)"></img-picker>
     <progressing v-else-if="currentMainComponent === 'progress'"
     :cancel-task="cancelTask" detail="正在生成风格化图像" :percent="percent"></progressing>
     <success v-else-if="currentMainComponent === 'success'" :img="img"></success>
@@ -145,6 +145,7 @@
           this.img = "data:image/jpeg;base64";
           this.img = "";
           this.imgCopy = "";
+          this.$refs.picker.changeShow();
         } else {
           this.img = event;
           this.imgCopy = event;
@@ -257,7 +258,7 @@
 				progressAdd();
 			},
 			cancelTask() {
-				if (this.requestTask != undefined) {
+				if (this.requestTask !== undefined) {
 					this.requestTask.abort();
 				}
 				this.currentMainComponent = "choose";
