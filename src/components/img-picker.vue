@@ -52,6 +52,9 @@ export default {
       // this.imgCopy = "";
       this.show = true;
     },
+    changeShow() {
+      this.show = !this.show;
+    }
   }
 }
 </script>
@@ -75,6 +78,8 @@ export default {
 #addMask {
   width: 100%;
   height: 100%;
+  display: flex;
+  justify-content: center;
   /*background-color: rgba(0,0,0,0.3);*/
   overflow: hidden;
   /*position: absolute;*/
@@ -87,7 +92,6 @@ export default {
   height: 100rpx;
   background-image: url("../static/add.png");
   background-size: cover;
-  margin: 50% auto 0 auto;
   display: flex;
   flex-direction: column;
   align-items: center;
