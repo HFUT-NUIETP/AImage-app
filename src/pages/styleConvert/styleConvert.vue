@@ -13,22 +13,11 @@
 				<view class="topbar-shortcut" v-if="currentMainComponent === 'choose'" @click.stop="cancel">清空</view>
 			</template>
 		</topbar>
-		<view class="boxBack" v-if="currentMainComponent === 'choose'">
-			<view id="chooseBox">
-				<image class="image" v-if="!showADD" v-bind:src="img" mode="aspectFill"></image>
-				<view @click.stop="addImg" v-if="showADD" id="addMask">
-					<view id="addIcon"></view>
-					<view v-if="false" id="changeIcon"></view>
-				</view>
-			</view>
-		</view>
+    <img-picker v-if="currentMainComponent === 'choose'" :img="img" v-on:img-change="imgChange($event)"></img-picker>
     <progressing v-else-if="currentMainComponent === 'progress'"
     :cancel-task="cancelTask" detail="正在生成风格化图像" :percent="percent"></progressing>
     <success v-else-if="currentMainComponent === 'success'" :img="img"></success>
     <error v-else-if="currentMainComponent === 'error'" :error-msg="errorMsg" :cancel-task="cancelTask"></error>
-		<view>
-			<cropper ref="cropper" :aspectRatio="1" :imagePath="img" @complete="complete" @cancel="cancel"></cropper>
-		</view>
 		<view id="bottomType" v-if="currentMainComponent === 'choose'">
 			<view class="funTypeContainer" v-for="(fun, id) in functionType" :key="id">
 				<view class="funTypeBoxWrap">
@@ -86,6 +75,7 @@
   import Progressing from "@/components/progressing";
   import Success from "@/components/success";
   import Error from "@/components/error";
+  import ImgPicker from "@/components/img-picker";
 	export default {
 		data() {
 			return {
@@ -116,7 +106,6 @@
 						img: '../../static/cartoon.png'
 					},
 				],
-				showADD: true,
 				img: '',
 				imgCopy: '',
 
@@ -151,29 +140,16 @@
 					complete: (e) => {console.log(e)},
 				});
 			},
-			addImg() {
-				uni.chooseImage({
-					count: 1, //默认9
-					sizeType: ['original'], //可以指定是原图还是压缩图，默认二者都有
-					sourceType: ['album'], //从相册选择
-					success: (res) => {
-						console.log(res);
-						this.$refs.cropper.init(res.tempFilePaths[0]);
-					}
-				});
-			},
-			complete(res) {
-				this.$refs.cropper.close(true);
-				this.img = res.path;
-				this.imgCopy = res.path;
-				this.showADD = false;
-			},
-			cancel() {
-				this.img = "data:image/jpeg;base64";
-				this.img = "";
-				this.imgCopy = "";
-				this.showADD = true;
-			},
+      imgChange(event) {
+        if (event === '') {
+          this.img = "data:image/jpeg;base64";
+          this.img = "";
+          this.imgCopy = "";
+        } else {
+          this.img = event;
+          this.imgCopy = event;
+        }
+      },
 			funChoose(type) {
 				if (this.img === '') {
 					uni.showToast({
@@ -288,6 +264,7 @@
 			},
 		},
 		components: {
+      ImgPicker,
       Error,
       Success,
       Progressing,
@@ -338,43 +315,7 @@
 		/*padding: 200rpx 0 0 0;*/
 	}
 
-	#chooseBox {
-		width: 100%;
-		/*height: 900rpx;*/
-		background-color: #ffffff;
-		/*border-radius: 40rpx;*/
-		/*margin: 0 auto;*/
-		display: flex;
-		flex-direction: row;
-		justify-content: center;
-		align-items: center;
-		overflow: hidden;
-		position: relative;
-	}
 
-
-
-	#addMask {
-		width: 100%;
-		height: 100%;
-		/*background-color: rgba(0,0,0,0.3);*/
-		overflow: hidden;
-		/*position: absolute;*/
-		/*top: 0;*/
-		/*left: 0;*/
-	}
-
-	#addIcon {
-		width: 100rpx;
-		height: 100rpx;
-		background-image: url("../../static/add.png");
-		background-size: cover;
-		margin: 50% auto 0 auto;
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		color: #FFFFFF;
-	}
 
 	#bottomType {
 		padding-top: 10rpx;
