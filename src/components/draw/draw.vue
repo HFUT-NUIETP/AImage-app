@@ -1,6 +1,6 @@
 <template>
 	<view class="draw">
-		<canvas canvas-id="myDraw" disable-scroll="true" style="width: 750rpx; height: 750rpx" @touchstart="onStart" @touchmove="onMove"></canvas>
+		<canvas canvas-id="myDraw" disable-scroll="true" style="width: 750rpx; height: 750rpx" @touchstart="onStart" @touchmove="onMove" @touchend="onStop"></canvas>
 	</view>
 </template>
 
@@ -36,13 +36,22 @@
 		},
 		methods: {
 			back: function () {
-				this.s.splice(this.s.length - 1, 1)
-        if (this.s.length === 0) {
+				this.pixels.splice(this.pixels.length - 1, 1);
+        if (this.pixels.length === 0) {
           this.drawBG();
           this.can.draw();
         } else {
-          this.isDraw = false;
-          this.onDraw();
+          uni.canvasPutImageData({
+            canvasId: "myDraw",
+            x: 0,
+            y: 0,
+            width: uni.upx2px(750),
+            height: uni.upx2px(750),
+            data: this.pixels[this.pixels.length - 1],
+            complete: (e) => {
+              console.log(e)
+            }
+          });
         }
 			},
 			save: function (e) {
@@ -62,7 +71,6 @@
 				})
 			},
 			onStart: function (e) {
-			  this.isDraw = true;
         const t = e.changedTouches[0]
         if (this.useMethod === "paint") {
           this.s.push({
@@ -70,7 +78,7 @@
             y: t.y,
             location: [],
             color: this.color,
-            size: this.size
+            size: this.size,
           })
         } else {
           t.x = Math.floor(t.x);
@@ -104,6 +112,7 @@
               canvasId: "myDraw",
               success: (res) => {
                 pixels = res;
+                // this.pixels.push(pixels.data);
               },
               fail: (e) => {
                 console.log(e);
@@ -173,7 +182,6 @@
               data: pixels.data,
               complete: (e) => {
                 console.log(e)
-                this.can.draw(true);
               }
             });
           };
@@ -181,6 +189,7 @@
           lineFill(t.x, t.y, newColor, oldColor);
         }
 			},
+
 			onMove: function (e) {
 			  if(this.useMethod !== "paint") {
 			    return;
@@ -195,10 +204,9 @@
 				this.onDraw();
 			},
 			onDraw: function () {
-			  this.drawBG()
 				for (let j of this.s) {
 					this.can.moveTo(j.x, j.y);
-					
+
 					for (let i of j.location) {
 						this.can.lineTo(i.x, i.y);
 					}
@@ -207,12 +215,23 @@
           this.can.setStrokeStyle(j.color);
           this.can.setLineWidth(j.size);
           this.can.stroke();
-          this.can.draw(this.isDraw);
+          this.can.draw(true);
 				}
 			},
 			drawBG: function () {
         this.can.drawImage("/static/default_input.png", 0, 0, uni.upx2px(750), uni.upx2px(750));
 			},
+      onStop() {
+			  this.s = [];
+        uni.canvasGetImageData({
+          x:0,
+          y:0,
+          canvasId: 'myDraw',
+          width: uni.upx2px(750),
+          height: uni.upx2px(750),
+          success: (res) => this.pixels.push(res.data)
+        })
+      }
 		},
 		created() {
 			this.can = uni.createCanvasContext('myDraw')
@@ -225,7 +244,7 @@
 			return {
 				can: undefined,
 				s: [],
-        isDraw: true
+        pixels: []
 			}
 		},
 	}

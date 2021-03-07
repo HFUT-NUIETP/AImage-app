@@ -7,7 +7,7 @@
       <view class="buttonGroup">
         <view class="button" @click="saveImage">保存</view>
         <view class="button" @click="share">分享</view>
-        <view class="button" @click="encrypted">加密</view>
+        <view class="button" v-if="!noEncrypted" @click="encrypted">加密</view>
       </view>
     </view>
   </view>
@@ -18,7 +18,15 @@ import {base64ToPath} from "@/js_sdk/gsq-image-tools/image-tools";
 
 export default {
   name: "success",
-  props: ['img'],
+  props: {
+    img: {
+      type: String
+    },
+    noEncrypted: {
+      type: Boolean,
+      default: true
+    }
+  },
   methods: {
     saveImage() {
       base64ToPath(this.img).then((path) => {
