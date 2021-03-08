@@ -14,16 +14,17 @@
   <img-picker ref="picker" :img="img" v-on:img-change="imgChange($event)" v-if="currentMainComponent === 'picker'"></img-picker>
   <view class="content-box" v-else-if="currentMainComponent === 'input' || currentMainComponent === 'output'">
     <view class="input-area">
-      <textarea v-model="textareaValue" class="textarea" placeholder="请输入要加密的文字"></textarea>
-      <view class="button" v-if="currentMainComponent === 'input'">开始加密</view>
-      <view class="button" v-else-if="currentMainComponent === 'output'">复制</view>
+      <textarea v-model="textareaValue" class="textarea" :placeholder="this.currentMainComponent === 'output' ? '':'请输入要加密的文字'" :disabled="this.currentMainComponent === 'output'"></textarea>
+      <view class="button" v-if="currentMainComponent === 'input'" @click="encrypted">开始加密</view>
+      <view class="button" v-else-if="currentMainComponent === 'output'" @click="copyCopyright">复制</view>
     </view>
   </view>
   <progressing :detail="progressDetail" :percent="percent" :cancel-task="cancelTask" v-else-if="currentMainComponent === 'progress'"></progressing>
   <success :img="img" is-encrypted v-else-if="currentMainComponent === 'success'"></success>
+  <error :cancel-task="cancelTask" :error-msg="errorMsg" v-else-if="currentMainComponent === 'error'"></error>
   <view class="function" v-if="currentMainComponent === 'picker'">
-    <view class="button margin-l-r">加密</view>
-    <view class="button margin-l-r">解密</view>
+    <view class="button margin-l-r" @click="emitProcess('en')">加密</view>
+    <view class="button margin-l-r" @click="emitProcess('de')">解密</view>
   </view>
 </layout>
 </template>
@@ -35,9 +36,10 @@ import TopbarBack from "@/components/topbar-back";
 import ImgPicker from "@/components/img-picker";
 import Progressing from "@/components/progressing";
 import Success from "@/components/success";
+import Error from "@/components/error";
 export default {
   name: "encrypt",
-  components: {Success, Progressing, ImgPicker, TopbarBack, Topbar, Layout},
+  components: {Error, Success, Progressing, ImgPicker, TopbarBack, Topbar, Layout},
   data() {
     return {
       img: undefined,
@@ -45,7 +47,8 @@ export default {
       textareaValue: "",
       percent: 1,
       requestTask: undefined,
-      progressDetail: ""
+      progressDetail: "",
+      errorMsg: ""
     }
   },
   methods: {
@@ -63,6 +66,104 @@ export default {
         this.requestTask.abort();
       }
       this.currentMainComponent = "picker";
+    },
+    emitProcess(func) {
+      if (this.img === '' || this.img === undefined) {
+        uni.showToast({
+          title: "请选择图片",
+          icon: "none",
+          mask: false,
+          duration: 2000
+        });
+        return;
+      }
+      this.percent = 25;
+      switch (func) {
+        case 'en':
+          this.currentMainComponent = 'input';
+          this.textareaValue = '';
+          break;
+        case 'de':
+          this.decrypted();
+      }
+    },
+    encrypted() {
+      if (this.textareaValue === "") {
+        uni.showToast({
+          title: "加密信息不能为空",
+          icon: "none",
+          mask: false,
+          duration: 2000
+        });
+        return;
+      }
+      this.percent = 75;
+      let data = {
+        img: this.img.split(',')[1],
+        txt: this.textareaValue
+      };
+      this.callApi(data, "image_encry/encode");
+    },
+    decrypted() {
+      let data = {
+        img: this.img.split(',')[1]
+      }
+      this.percent = 75;
+      this.callApi(data, "image_encry/decode");
+    },
+    callApi(data, path) {
+      this.requestTask = uni.request({
+        url: this.serverUrl + path,
+        method: 'POST',
+        header: {
+          'content-type': 'application/x-www-form-urlencoded'
+        },
+        data: data,
+        success: (res) => {
+          if (res.statusCode === 200) {
+            this.percent = 100;
+            if (this.currentMainComponent === "picker") return;
+            if (path === 'image_encry/decode') {
+              this.currentMainComponent = "output";
+              this.textareaValue = res.data
+            } else {
+              this.currentMainComponent = "success";
+              this.img = "data:image/png;base64," + res.data;
+            }
+          } else {
+            this.errorMsg = "内部错误";
+            this.currentMainComponent = "error";
+          }
+        },
+        fail: (res) => {
+          this.errorMsg = "网络异常"
+          this.currentMainComponent = "error";
+        }
+      });
+      let progressAdd = () => setTimeout(() => {
+        if (this.percent < 99) {
+          this.percent += 1;
+          progressAdd();
+        }
+      }, 1500);
+      progressAdd();
+      this.currentMainComponent = 'progress';
+    },
+    copyCopyright() {
+      uni.setClipboardData({
+        data: this.textareaValue,
+        success: (e) => {
+          uni.showToast({
+            title: "已复制",
+            icon: "none",
+            mask: false,
+            duration: 2000
+          })
+        },
+        complete: (e) => {
+          console.log(e);
+        }
+      });
     }
   }
 }
