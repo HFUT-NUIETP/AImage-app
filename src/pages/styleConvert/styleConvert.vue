@@ -56,6 +56,18 @@
 				<view class="submitButton" @click="startProcess('oil')">提交</view>
 			</view>
 		</uni-popup>
+    <uni-popup ref="artPopup" type="bottom">
+    <view class="popup">
+      <view class="closeBox" @click="$refs.artPopup.close()">×</view>
+      <view class="functionTitle">艺术化风格选择</view>
+      <view class="artSelect">
+        <view class="artSelect-item" v-for="i in artData" :key="i.img" :style="{backgroundImage: `url(${i.img})`}" @click="artSelect = i.id">
+          <view class="artSelect-ok" v-if="artSelect === i.id"></view>
+        </view>
+      </view>
+      <view class="submitButton" @click="startProcess('art')">生成</view>
+    </view>
+  </uni-popup>
 	</Layout>
 </template>
 
@@ -101,9 +113,9 @@
 						img: '../../static/anime.png'
 					},
 					{
-						name: "cartoon",
-						fun: '卡通头像',
-						img: '../../static/cartoon.png'
+						name: "art",
+						fun: '艺术画',
+						img: '../../static/art.png'
 					},
 				],
 				img: '',
@@ -119,7 +131,35 @@
 				oilpaintData: {
 					flag: false,
 					model: true
-				}
+				},
+        artData: [
+          {'img': '../../static/styles/style0.jpg', 'id': 0},
+          {'img': '../../static/styles/style1.jpg', 'id': 1},
+          {'img': '../../static/styles/style2.jpg', 'id': 2},
+          {'img': '../../static/styles/style3.jpg', 'id': 3},
+          {'img': '../../static/styles/style4.jpg', 'id': 4},
+          {'img': '../../static/styles/style5.jpg', 'id': 5},
+          {'img': '../../static/styles/style6.jpg', 'id': 6},
+          {'img': '../../static/styles/style7.jpg', 'id': 7},
+          {'img': '../../static/styles/style8.jpg', 'id': 8},
+          {'img': '../../static/styles/style9.jpg', 'id': 9},
+          {'img': '../../static/styles/style10.jpg', 'id': 10},
+          {'img': '../../static/styles/style11.jpg', 'id': 11},
+          {'img': '../../static/styles/style12.jpg', 'id': 12},
+          {'img': '../../static/styles/style13.jpg', 'id': 13},
+          {'img': '../../static/styles/style14.jpg', 'id': 14},
+          {'img': '../../static/styles/style15.jpg', 'id': 15},
+          {'img': '../../static/styles/style16.jpg', 'id': 16},
+          {'img': '../../static/styles/style17.jpg', 'id': 17},
+          {'img': '../../static/styles/style18.jpg', 'id': 18},
+          {'img': '../../static/styles/style19.jpg', 'id': 19},
+          {'img': '../../static/styles/style20.jpg', 'id': 20},
+          {'img': '../../static/styles/style21.jpg', 'id': 21},
+          {'img': '../../static/styles/style22.jpg', 'id': 22},
+          {'img': '../../static/styles/style23.jpg', 'id': 23},
+          {'img': '../../static/styles/style24.jpg', 'id': 24},
+          {'img': '../../static/styles/style25.jpg', 'id': 25}],
+		    artSelect: undefined
 			}
 		},
 		onLoad() {
@@ -172,8 +212,8 @@
 					case 'anime':
 						this.startProcess("anime");
 						break;
-					case 'cartoon':
-						this.startProcess("cartoon");
+					case 'art':
+					  this.$refs.artPopup.open();
 						break;
 					default:
 						return;
@@ -185,11 +225,12 @@
 				this.percent = 1;
 				let data = {};
 				let path = "";
+				let img = this.img.split(',')[1]
 				switch (type) {
 					case 'pencil':
 						this.$refs.pencilPopup.close();
 						data = {
-							'img': this.img.split(',')[1],
+							'img': img,
 							'color': (this.pencilData.color ? 'True' : 'False'),
 							's': (this.pencilData.gammaS / 10).toFixed(1),
 							'i': (this.pencilData.gammaI / 10).toFixed(1),
@@ -200,22 +241,24 @@
 					case 'oil':
 						this.$refs.oilPopup.close();
 						data = {
-							'img': this.img.split(',')[1],
+							'img': img,
 							'model': (this.oilpaintData.model ? 0 : 1)
 						};
 						path = "oilpaint";
 						break;
 					case 'anime':
 						data = {
-							'img': this.img.split(',')[1]
+							'img': img
 						};
 						path = "anime";
 						break;
-					case 'cartoon':
+					case 'art':
+					  this.$refs.artPopup.close();
 						data = {
-							'img': this.img.split(',')[1]
+							'img': img,
+              'style_no': this.artSelect
 						};
-						path = "cartoon";
+						path = "style_transfer";
 						break;
 					default:
 						return;
@@ -229,11 +272,7 @@
 					},
 					data: data,
 					success: (res) => {
-						if (res.statusCode === 200 && res.data.status === 1) {
-							uni.hideLoading();
-							this.errorMsg = "没有找到人脸哦，请换张图片"
-							this.currentMainComponent = "error";
-						} else if (res.statusCode === 200) {
+						if (res.statusCode === 200) {
 							this.percent = 100;
 							if (this.currentMainComponent === "choose") return;
 							this.currentMainComponent = "success";
@@ -276,8 +315,8 @@
 			InputSlider,
 			Cropper,
 			Topbar
-		}
-	}
+		},
+  }
 </script>
 
 <style lang="scss" scoped>
@@ -458,5 +497,30 @@
 			@extend .topbar-icon
 		}
 	}
+
+  .artSelect {
+    width: 576rpx;
+    height: 596rpx;
+    display: flex;
+    flex-wrap: wrap;
+    overflow-y: overlay;
+    margin: 20rpx auto 0;
+
+    &-item {
+      width: 184rpx;
+      height: 184rpx;
+      background-size: cover;
+      border-bottom: 4rpx solid white;
+      border-right: 4rpx solid white;
+      display: flex;
+      justify-content: flex-end;
+      align-items: flex-end;
+    }
+    &-ok {
+      background-image: url("../../static/ok.png");
+      width: 24px;
+      height: 24px;
+    }
+  }
 
 </style>
