@@ -5,20 +5,18 @@
       <topbar-back></topbar-back>
     </template>
     <template v-slot:center>
-      <view v-if="currentMainComponent === 'draw'">AI 创作</view>
-      <view v-else-if="currentMainComponent === 'success'">保存并分享</view>
+      <view>AI 创作</view>
     </template>
     <template v-slot:right>
       <view class="topbar-shortcut" @click="startAIDraw" v-if="currentMainComponent === 'draw'">生成</view>
     </template>
   </Topbar>
-  <view class="draw-box" v-if="currentMainComponent === 'draw'">
+  <view class="draw-box" v-show="currentMainComponent === 'draw'">
     <draw ref="draw" v-if="!current.destroy" :color="canvasColor"
           v-on:on-save="aiDrawCallback($event)"
           :use-method="current.method" :size="current.size"></draw>
   </view>
-  <progressing v-else-if="currentMainComponent === 'progress'" :percent="percent" detail="AI 正在创作中"></progressing>
-  <success v-else-if="currentMainComponent === 'success'" :img="img"></success>
+  <progressing v-if="currentMainComponent === 'progress'" :percent="percent" detail="AI 正在创作中"></progressing>
   <error v-else-if="currentMainComponent === 'error'" :error-msg="errorMsg" :cancel-task="cancelTask"></error>
   <view class="draw-function" v-if="currentMainComponent === 'draw'">
     <view class="draw-palette" @click="popupPalette" :style="[{backgroundColor: canvasColor}]">{{colorName}}</view>
@@ -329,8 +327,15 @@ export default {
             if (res.statusCode === 200) {
               this.percent = 100;
               if (this.currentMainComponent === "draw") return;
-              this.currentMainComponent = "success";
-              this.img = "data:image/png;base64," + res.data;
+              const img = "data:image/png;base64," + res.data;
+              uni.navigateTo({
+                url: "/pages/success/success",
+                success: (res) => {
+                  res.eventChannel.emit("success", {img: img,
+                  noEncrypted: true})
+                }
+              })
+              this.currentMainComponent = "draw";
             } else {
               this.errorMsg = "内部错误";
               this.currentMainComponent = "error";
