@@ -7,12 +7,7 @@ export default {
   name: "topbar-back",
   methods: {
     back() {
-      uni.redirectTo({
-        url: "/pages/index/index",
-        complete: (e) => {
-          console.log(e)
-        },
-      });
+      uni.navigateBack();
     }
   }
 }

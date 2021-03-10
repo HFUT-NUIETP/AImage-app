@@ -11,8 +11,8 @@
       <view class="topbar-shortcut" @click="imgChange('')" v-if="currentMainComponent === 'picker'">清空</view>
     </template>
   </topbar>
-  <img-picker ref="picker" :img="img" v-on:img-change="imgChange($event)" v-if="currentMainComponent === 'picker'"></img-picker>
-  <view class="content-box" v-else-if="currentMainComponent === 'input' || currentMainComponent === 'output'">
+  <img-picker ref="picker" :img="img" v-on:img-change="imgChange($event)" v-show="currentMainComponent === 'picker'"></img-picker>
+  <view class="content-box" v-if="currentMainComponent === 'input' || currentMainComponent === 'output'">
     <view class="input-area">
       <textarea v-model="textareaValue" class="textarea" :placeholder="this.currentMainComponent === 'output' ? '':'请输入要加密的文字'" :disabled="this.currentMainComponent === 'output'"></textarea>
       <view class="button" v-if="currentMainComponent === 'input'" @click="encrypted">开始加密</view>
@@ -20,7 +20,6 @@
     </view>
   </view>
   <progressing :detail="progressDetail" :percent="percent" :cancel-task="cancelTask" v-else-if="currentMainComponent === 'progress'"></progressing>
-  <success :img="img" is-encrypted v-else-if="currentMainComponent === 'success'"></success>
   <error :cancel-task="cancelTask" :error-msg="errorMsg" v-else-if="currentMainComponent === 'error'"></error>
   <view class="function" v-if="currentMainComponent === 'picker'">
     <view class="button margin-l-r" @click="emitProcess('en')">加密</view>
@@ -35,11 +34,22 @@ import Topbar from "@/components/topbar";
 import TopbarBack from "@/components/topbar-back";
 import ImgPicker from "@/components/img-picker";
 import Progressing from "@/components/progressing";
-import Success from "@/components/success";
 import Error from "@/components/error";
 export default {
   name: "encrypt",
-  components: {Error, Success, Progressing, ImgPicker, TopbarBack, Topbar, Layout},
+  components: {Error, Progressing, ImgPicker, TopbarBack, Topbar, Layout},
+  onLoad() {
+    const eventChannel = this.getOpenerEventChannel()
+    eventChannel.on('addImg', data => {
+      console.log(data);
+      this.img = data.img;
+    })
+  },
+  mounted() {
+    if (this.img !== undefined) {
+      this.$refs.picker.changeShow();
+    }
+  },
   data() {
     return {
       img: undefined,
@@ -127,8 +137,14 @@ export default {
               this.currentMainComponent = "output";
               this.textareaValue = res.data
             } else {
-              this.currentMainComponent = "success";
-              this.img = "data:image/png;base64," + res.data;
+              const img = "data:image/png;base64," + res.data;
+              uni.navigateTo({
+                url: "/pages/success/success",
+                success: (res) => {
+                  res.eventChannel.emit("success", {img: img})
+                }
+              })
+              this.currentMainComponent = "picker";
             }
           } else {
             this.errorMsg = "内部错误";

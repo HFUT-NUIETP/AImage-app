@@ -3,20 +3,18 @@
 		<view class="statusBar" :style="{ height: statusBarHeight + 'px' }"></view>
 		<topbar>
 			<template v-slot:left>
-        <topbar-back v-if="currentMainComponent === 'choose' || currentMainComponent === 'success'"></topbar-back>
+        <topbar-back v-if="currentMainComponent === 'choose'"></topbar-back>
 			</template>
 			<template v-slot:center>
-				<view v-if="currentMainComponent === 'choose' || currentMainComponent === 'progress' || currentMainComponent === 'error'">风格转换</view>
-				<view v-if="currentMainComponent === 'success'">保存并分享</view>
+				<view>风格转换</view>
 			</template>
 			<template v-slot:right>
-				<view class="topbar-shortcut" v-if="currentMainComponent === 'choose'" @click.stop="cancel">清空</view>
+				<view class="topbar-shortcut" v-if="currentMainComponent === 'choose'" @click.stop="imgChange('')">清空</view>
 			</template>
 		</topbar>
-    <img-picker ref="picker" v-if="currentMainComponent === 'choose'" :img="img" v-on:img-change="imgChange($event)"></img-picker>
-    <progressing v-else-if="currentMainComponent === 'progress'"
+    <img-picker ref="picker" v-show="currentMainComponent === 'choose'" :img="img" v-on:img-change="imgChange($event)"></img-picker>
+    <progressing v-if="currentMainComponent === 'progress'"
     :cancel-task="cancelTask" detail="正在生成风格化图像" :percent="percent"></progressing>
-    <success v-else-if="currentMainComponent === 'success'" :img="img"></success>
     <error v-else-if="currentMainComponent === 'error'" :error-msg="errorMsg" :cancel-task="cancelTask"></error>
 		<view id="bottomType" v-if="currentMainComponent === 'choose'">
 			<view class="funTypeContainer" v-for="(fun, id) in functionType" :key="id">
@@ -85,7 +83,6 @@
 	import Layout from "../../components/layout";
   import TopbarBack from "@/components/topbar-back";
   import Progressing from "@/components/progressing";
-  import Success from "@/components/success";
   import Error from "@/components/error";
   import ImgPicker from "@/components/img-picker";
 	export default {
@@ -275,9 +272,14 @@
 						if (res.statusCode === 200) {
 							this.percent = 100;
 							if (this.currentMainComponent === "choose") return;
-							this.currentMainComponent = "success";
-							this.img = "data:image/png;base64," + res.data;
-							this.pencilData.flag = false;
+							const img = "data:image/png;base64," + res.data;
+              uni.navigateTo({
+                url: "/pages/success/success",
+                success: (res) => {
+                  res.eventChannel.emit("success", {img: img})
+                }
+              })
+              this.currentMainComponent = "choose";
 						} else {
 							this.errorMsg = "内部错误";
 							this.currentMainComponent = "error";
@@ -306,7 +308,6 @@
 		components: {
       ImgPicker,
       Error,
-      Success,
       Progressing,
       TopbarBack,
 			Layout,
