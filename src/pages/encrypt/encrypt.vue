@@ -20,7 +20,6 @@
     </view>
   </view>
   <progressing :detail="progressDetail" :percent="percent" :cancel-task="cancelTask" v-else-if="currentMainComponent === 'progress'"></progressing>
-  <error :cancel-task="cancelTask" :error-msg="errorMsg" v-else-if="currentMainComponent === 'error'"></error>
   <view class="function" v-if="currentMainComponent === 'picker'">
     <view class="button margin-l-r" @click="emitProcess('en')">加密</view>
     <view class="button margin-l-r" @click="emitProcess('de')">解密</view>
@@ -34,10 +33,9 @@ import Topbar from "@/components/topbar";
 import TopbarBack from "@/components/topbar-back";
 import ImgPicker from "@/components/img-picker";
 import Progressing from "@/components/progressing";
-import Error from "@/components/error";
 export default {
   name: "encrypt",
-  components: {Error, Progressing, ImgPicker, TopbarBack, Topbar, Layout},
+  components: {Progressing, ImgPicker, TopbarBack, Topbar, Layout},
   onLoad() {
     const eventChannel = this.getOpenerEventChannel()
     eventChannel.on('addImg', data => {
@@ -148,12 +146,24 @@ export default {
             }
           } else {
             this.errorMsg = "内部错误";
-            this.currentMainComponent = "error";
+            uni.navigateTo({
+              url: "/pages/error/error",
+              success: (res) => {
+                res.eventChannel.emit("error", {errorMsg: this.errorMsg, title: "版权保护"});
+              }
+            })
+            this.currentMainComponent = "picker";
           }
         },
         fail: (res) => {
           this.errorMsg = "网络异常"
-          this.currentMainComponent = "error";
+          uni.navigateTo({
+            url: "/pages/error/error",
+            success: (res) => {
+              res.eventChannel.emit("error", {errorMsg: this.errorMsg, title: "版权保护"});
+            }
+          })
+          this.currentMainComponent = "picker";
         }
       });
       let progressAdd = () => setTimeout(() => {

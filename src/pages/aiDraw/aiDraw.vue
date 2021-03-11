@@ -62,12 +62,10 @@ import Draw from "@/components/draw/draw"
 import UniPopup from "@/components/uni-popup/uni-popup";
 import InputSlider from "@/components/inputSlider";
 import Progressing from "@/components/progressing";
-import {base64ToPath} from "@/js_sdk/gsq-image-tools/image-tools";
-import Success from "@/components/success";
-import Error from "@/components/error";
+import {pathToBase64} from "@/js_sdk/QuShe-SharerPoster/QS-SharePoster/image-tools";
 export default {
   name: "aiDraw",
-  components: {Error, Success, Progressing, InputSlider, UniPopup, TopbarBack, Topbar, Layout, Draw},
+  components: {Progressing, InputSlider, UniPopup, TopbarBack, Topbar, Layout, Draw},
   mounted() {
   },
   data() {
@@ -338,12 +336,24 @@ export default {
               this.currentMainComponent = "draw";
             } else {
               this.errorMsg = "内部错误";
-              this.currentMainComponent = "error";
+              uni.navigateTo({
+                url: "/pages/error/error",
+                success: (res) => {
+                  res.eventChannel.emit("error", {errorMsg: this.errorMsg, title: "AI 创作"});
+                }
+              })
+              this.currentMainComponent = "draw";
             }
           },
           fail: (res) => {
             this.errorMsg = "网络异常"
-            this.currentMainComponent = "error";
+            uni.navigateTo({
+              url: "/pages/error/error",
+              success: (res) => {
+                res.eventChannel.emit("error", {errorMsg: this.errorMsg, title: "AI 创作"});
+              }
+            })
+            this.currentMainComponent = "draw";
           }
         });
         let progressAdd = () => setTimeout(() => {
