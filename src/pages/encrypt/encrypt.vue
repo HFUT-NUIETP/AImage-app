@@ -201,7 +201,8 @@ export default {
 
 .textarea {
   width: 584rpx;
-  height: 1099rpx;
+  flex-grow: 1;
+  //height: 1099rpx;
   border: 2px solid #707070;
   padding: 20px;
 }
@@ -211,5 +212,6 @@ export default {
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  flex-grow: 1;
 }
 </style>
