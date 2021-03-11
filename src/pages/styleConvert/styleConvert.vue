@@ -15,7 +15,6 @@
     <img-picker ref="picker" v-show="currentMainComponent === 'choose'" :img="img" v-on:img-change="imgChange($event)"></img-picker>
     <progressing v-if="currentMainComponent === 'progress'"
     :cancel-task="cancelTask" detail="正在生成风格化图像" :percent="percent"></progressing>
-    <error v-else-if="currentMainComponent === 'error'" :error-msg="errorMsg" :cancel-task="cancelTask"></error>
 		<view id="bottomType" v-if="currentMainComponent === 'choose'">
 			<view class="funTypeContainer" v-for="(fun, id) in functionType" :key="id">
 				<view class="funTypeBoxWrap">
@@ -83,7 +82,6 @@
 	import Layout from "../../components/layout";
   import TopbarBack from "@/components/topbar-back";
   import Progressing from "@/components/progressing";
-  import Error from "@/components/error";
   import ImgPicker from "@/components/img-picker";
 	export default {
 		data() {
@@ -282,12 +280,24 @@
               this.currentMainComponent = "choose";
 						} else {
 							this.errorMsg = "内部错误";
-							this.currentMainComponent = "error";
+              uni.navigateTo({
+                url: "/pages/error/error",
+                success: (res) => {
+                  res.eventChannel.emit("error", {errorMsg: this.errorMsg, title: "风格转换"});
+                }
+              })
+              this.currentMainComponent = "choose";
 						}
 					},
 					fail: (res) => {
 						this.errorMsg = "网络异常"
-						this.currentMainComponent = "error";
+            uni.navigateTo({
+              url: "/pages/error/error",
+              success: (res) => {
+                res.eventChannel.emit("error", {errorMsg: this.errorMsg, title: "风格转换"});
+              }
+            })
+            this.currentMainComponent = "choose";
 					}
 				});
 				let progressAdd = () => setTimeout(() => {
@@ -307,7 +317,6 @@
 		},
 		components: {
       ImgPicker,
-      Error,
       Progressing,
       TopbarBack,
 			Layout,
