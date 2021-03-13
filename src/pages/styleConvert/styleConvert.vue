@@ -290,7 +290,8 @@
 						}
 					},
 					fail: (res) => {
-						this.errorMsg = "网络异常"
+            if (res.errMsg === "request:fail abort") return;
+            this.errorMsg = "网络异常"
             uni.navigateTo({
               url: "/pages/error/error",
               success: (res) => {
