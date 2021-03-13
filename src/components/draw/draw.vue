@@ -84,40 +84,23 @@
           t.x = Math.floor(t.x);
           t.y = Math.floor(t.y);
 
-          let width = uni.upx2px(750);
-          let height = uni.upx2px(750);
           let reg = new RegExp(/rgb\((.*)\)/);
           let newColor = this.color.match(reg)[1];
-          const getPixelColor = (x, y) => {
-            let result = "";
-            uni.canvasGetImageData({
-              x: x,
-              y: y,
-              canvasId: "myDraw",
-              width: 1,
-              height: 1,
-              success: (res) => {
-                result = res.data;
-              }
+          const getPixelColor = async (x, y) => {
+            return await new Promise((resolve, reject) => {
+              uni.canvasGetImageData({
+                x: x,
+                y: y,
+                canvasId: "myDraw",
+                width: 1,
+                height: 1,
+                success: (res) => {
+                  resolve(res.data);
+                }
+            })
             });
-            return result;
           }
-			    const lineFill = (x, y, newColor, oldColor) => {
-            let pixels = undefined;
-            uni.canvasGetImageData({
-              x: 0,
-              y: 0,
-              width: width,
-              height: height,
-              canvasId: "myDraw",
-              success: (res) => {
-                pixels = res;
-                // this.pixels.push(pixels.data);
-              },
-              fail: (e) => {
-                console.log(e);
-              }
-            });
+          const lineFill = (x, y, newColor, oldColor) => {
             const getPixelColorFromPixels = (index) => {
               return pixels.data[index];
             }
@@ -136,15 +119,15 @@
               return pixels.data[index + 0] === oldColor[0] && pixels.data[index + 1] === oldColor[1] && pixels.data[index + 2] === oldColor[2] && pixels.data[index + 3] === oldColor[3]
             }
             let dirList = [[x, y]];
-            if(newColor === oldColor) {
+            if (newColor === oldColor) {
               return;
             }
-            while(dirList.length > 0) {
+            while (dirList.length > 0) {
               let dir = dirList.pop();
               let x = dir[0];
               let y = dir[1];
               let index = (y * width + x) * 4;
-              while(isSameColor(index)) {
+              while (isSameColor(index)) {
                 y--;
                 index = (y * width + x) * 4;
               }
@@ -185,10 +168,40 @@
               }
             });
           };
-          let oldColor = getPixelColor(t.x, t.y)
-          lineFill(t.x, t.y, newColor, oldColor);
+
+          const canvasGetImageData = async () => {
+            return await new Promise((resolve, reject) => {
+              uni.canvasGetImageData({
+                x: 0,
+                y: 0,
+                width: width,
+                height: height,
+                canvasId: "myDraw",
+                success: (res) => {
+                  resolve(res);
+                },
+                fail: (e) => {
+                  console.log(e);
+                  reject(e);
+                }
+              });
+            })
+          }
+
+          let pixels = undefined;
+
+          let width = uni.upx2px(750);
+          let height = uni.upx2px(750);
+
+          canvasGetImageData().then(res => {
+            pixels = res
+          })
+
+          getPixelColor(t.x, t.y).then(oldColor => {
+            lineFill(t.x, t.y, newColor, oldColor);
+          })
         }
-			},
+      },
 
 			onMove: function (e) {
 			  if(this.useMethod !== "paint") {

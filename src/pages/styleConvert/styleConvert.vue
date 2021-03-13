@@ -1,6 +1,5 @@
 <template>
 	<Layout>
-		<view class="statusBar" :style="{ height: statusBarHeight + 'px' }"></view>
 		<topbar>
 			<template v-slot:left>
         <topbar-back v-if="currentMainComponent === 'choose'"></topbar-back>
@@ -70,7 +69,6 @@
 
 <script>
 	import Cropper from '../../components/yankai-cropper/cropper.vue';
-	// import md5 from 'md5.js'
 	import {
 		pathToBase64,
 		base64ToPath
@@ -86,8 +84,6 @@
 	export default {
 		data() {
 			return {
-				statusBarHeight: 0,
-				windowHeight: 0,
 				currentMainComponent: "choose", //Todo:keep this 'choose'
 				percent: 1,
 				requestTask: undefined,
