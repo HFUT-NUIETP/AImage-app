@@ -12,14 +12,13 @@
     </template>
   </Topbar>
   <view class="draw-box" v-show="currentMainComponent === 'draw'">
-    <draw ref="draw" v-if="!current.destroy" :color="canvasColor"
+    <draw ref="draw" v-if="!destroy" :color="`rgb(${colors[colorsIndex].options[optionIndex].color})`"
           v-on:on-save="aiDrawCallback($event)"
-          :use-method="current.method" :size="current.size"></draw>
+          :use-method="method" :size="size"></draw>
   </view>
-  <progressing v-if="currentMainComponent === 'progress'" :percent="percent" detail="AI 正在创作中"></progressing>
-  <error v-else-if="currentMainComponent === 'error'" :error-msg="errorMsg" :cancel-task="cancelTask"></error>
+  <progressing v-if="currentMainComponent === 'progress'" :percent="percent" detail="AI 正在创作中" :cancel-task="cancelTask"></progressing>
   <view class="draw-function" v-if="currentMainComponent === 'draw'">
-    <view class="draw-palette" @click="popupPalette" :style="[{backgroundColor: canvasColor}]">{{colorName}}</view>
+    <view class="draw-palette" @click="popupPalette" :style="[{backgroundColor: `rgb(${colors[colorsIndex].options[optionIndex].color})`}]">{{ colors[colorsIndex].options[optionIndex].type }}</view>
     <view v-for="f in functions" :style="[{backgroundImage: `url(${getFuncColor(f)}.png)`, width: f.width, height: f.height}]" @click="callFunc(f)"></view>
   </view>
   <uni-popup ref="palette" type="bottom">
@@ -27,15 +26,21 @@
      <view class="popup-content">
        <view style="font-size: 18px; font-weight: bold; font-family: PBold">颜色选择</view>
        <view class="select-box">
-         <select class="select" v-model="current.optionName">
-           <option v-for="c in colors" :value="c.name">{{c.type}}</option>
-         </select>
+         <view class="picker-area">
+           <picker :range="colors" range-key="type" :value="colorsIndex" @change="e => colorsIndex = e.target.value">
+             <view>{{colors[colorsIndex].type}}</view>
+           </picker>
+         </view>
        </view>
-       <view class="select-box" style="display: flex; align-items: center">
-         <view class="color-preview" :style="[{backgroundColor: `rgb(${current.color.split('#')[0]})`}]"></view>
-         <select class="select" v-model="current.color" style="width: 370rpx">
-           <option v-for="o in options" :value="`${o.color}#${o.type}`">{{o.type}}</option>
-         </select>
+       <view class="select-box">
+         <view class="picker-area">
+           <picker :range="colors[colorsIndex].options" range-key="type" :value="optionIndex" @change="e => optionIndex = e.target.value">
+             <view class="picker">
+               <view class="color-preview" :style="{backgroundColor: `rgb(${colors[colorsIndex].options[optionIndex].color})`}"></view>
+               <view>{{ colors[colorsIndex].options[optionIndex].type }}</view>
+             </view>
+           </picker>
+         </view>
        </view>
        <view class="button" style="margin-top: 80rpx" @click="$refs.palette.close()">确定</view>
      </view>
@@ -45,7 +50,7 @@
     <view class="popup" style="padding: 48rpx">
       <view class="popup-content">
         <view style="font-size: 18px; font-weight: bold; font-family: PBold">笔刷大小</view>
-        <input-slider name="" :value="current.size" :change="(e) => this.current.size = e.detail.value"
+        <input-slider name="" :value="size" :change="(e) => this.size = e.detail.value"
                       :show_value="true" step="1" min="1" max="50" />
         <view class="button" @click="$refs.paint.close()">确定</view>
       </view>
@@ -66,8 +71,7 @@ import {pathToBase64} from "@/js_sdk/QuShe-SharerPoster/QS-SharePoster/image-too
 export default {
   name: "aiDraw",
   components: {Progressing, InputSlider, UniPopup, TopbarBack, Topbar, Layout, Draw},
-  mounted() {
-  },
+
   data() {
     return {
       functions: [
@@ -104,13 +108,11 @@ export default {
       requestTask: undefined,
       errorMsg: "",
       img: "",
-      current: {
-        optionName: "landscape",
-        color: "161,161,100#石头",
-        destroy: false,
-        method: "paint",
-        size: 8
-      },
+      colorsIndex: 0,
+      optionIndex: 0,
+      destroy: false,
+      method: "paint",
+      size: 8,
       colors: [
         {
           type: "建筑物",
@@ -264,7 +266,8 @@ export default {
             }
           ]
         }
-      ]
+      ],
+      currOptions: []
     }
   },
   methods: {
@@ -283,22 +286,22 @@ export default {
       }
       switch (f.name) {
         case 'new_draw':
-          this.current.img = "/static/default_input.png";
-          this.current.destroy = true;
-          this.$nextTick(() => this.current.destroy = false);
+          this.img = "/static/default_input.png";
+          this.destroy = true;
+          this.$nextTick(() => this.destroy = false);
           break;
         case 'withdraw':
           this.$refs.draw.back();
           break;
         case 'paint':
-          if (this.current.method === "paint") {
+          if (this.method === "paint") {
             this.$refs.paint.open();
           } else {
-            this.current.method = "paint";
+            this.method = "paint";
           }
           break;
         case 'paint_bucket':
-          this.current.method = "paint_bucket";
+          this.method = "paint_bucket";
           break;
         default:
           return;
@@ -346,6 +349,7 @@ export default {
             }
           },
           fail: (res) => {
+            if (res.errMsg === "request:fail abort") return;
             this.errorMsg = "网络异常"
             uni.navigateTo({
               url: "/pages/error/error",
@@ -386,21 +390,6 @@ export default {
       this.currentMainComponent = "draw";
     },
   },
-  computed: {
-    options: function () {
-      for (const c of this.colors) {
-        if (c.name === this.current.optionName) {
-          return c.options
-        }
-      }
-    },
-    canvasColor: function () {
-      return `rgb(${this.current.color.split("#")[0]})`
-    },
-    colorName: function () {
-      return this.current.color.split("#")[1]
-    }
-  }
 }
 </script>
 
@@ -441,23 +430,31 @@ export default {
   flex-direction: column;
 }
 
-.select {
-  width: 448rpx;
+.select-box {
+  font-size: 28rpx;
+  display: flex;
+  margin-top: 40rpx;
   height: 96rpx;
-  border: none;
+  width: 448rpx;
+  justify-content: space-between;
+  align-items: center;
   box-shadow: 0 5px 12px #888;
   border-radius: 10rpx;
-  padding-left: 40rpx;
-  font-size: 28rpx;
-  &-box {
-    margin-top: 40rpx;
-  }
+}
+
+.picker-area {
+  flex-grow: 1;
+  padding: 14rpx 24rpx;
+}
+
+.picker {
+  display: flex;
 }
 
 .color-preview {
   width: 34rpx;
   height: 34rpx;
   border: solid 1px black;
-  margin-right: 40rpx;
+  margin-right: 20rpx;
 }
 </style>
