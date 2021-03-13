@@ -2,8 +2,8 @@
     "name" : "AImage",
     "appid" : "__UNI__600825E",
     "description" : "",
-    "versionName" : "1.0.1",
-    "versionCode" : 102,
+    "versionName" : "1.0.2",
+    "versionCode" : 103,
     "transformPx" : false,
     "app-plus" : {
         "nvueCompiler" : "uni-app",
