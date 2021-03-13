@@ -15,6 +15,7 @@
 
 <script>
 import cropper from "@/components/yankai-cropper/cropper";
+import {pathToBase64} from "@/js_sdk/gsq-image-tools/image-tools";
 export default {
   name: "img-picker",
   props: ['img'],
@@ -39,17 +40,23 @@ export default {
       });
     },
     complete(res) {
+      const emit = (img) => {
+        this.$emit('img-change', img);
+        this.show = false;
+      };
       this.$refs.cropper.close(true);
-      this.$emit('img-change', res.path);
-      // this.img = res.path;
-      // this.imgCopy = res.path;
-      this.show = false;
+      let img = res.path;
+      if (img.indexOf("base64") === -1) {
+        pathToBase64(img).then(res => {
+          img = res;
+          emit(img)
+        });
+      } else {
+        emit(img);
+      }
     },
     cancel() {
-      this.$emit('img-change', res.path);
-      // this.img = "data:image/jpeg;base64";
-      // this.img = "";
-      // this.imgCopy = "";
+      this.$emit('img-change', '');
       this.show = true;
     },
     changeShow() {
