@@ -128,7 +128,7 @@ export default {
             },
             {
               type: "房子",
-              color: ""
+              color: "127,69,2"
             },
             {
               type: "平台",
