@@ -56,11 +56,13 @@
     <view class="popup">
       <view class="closeBox" @click="$refs.artPopup.close()">×</view>
       <view class="functionTitle">艺术化风格选择</view>
-      <view class="artSelect">
-        <view class="artSelect-item" v-for="i in artData" :key="i.img" :style="{backgroundImage: `url(${i.img})`}" @click="artSelect = i.id">
-          <view class="artSelect-ok" v-if="artSelect === i.id"></view>
+      <scroll-view class="artSelect" scroll-y>
+        <view class="artSelect-box">
+          <view class="artSelect-item" v-for="i in artData" :key="i.img" :style="{backgroundImage: `url(${i.img})`}" @click="artSelect = i.id">
+            <view class="artSelect-ok" v-if="artSelect === i.id"></view>
+          </view>
         </view>
-      </view>
+      </scroll-view>
       <view class="submitButton" @click="startProcess('art')">生成</view>
     </view>
   </uni-popup>
@@ -322,7 +324,7 @@
 			InputSlider,
 			Cropper,
 			Topbar
-		},
+		}
   }
 </script>
 
@@ -508,10 +510,13 @@
   .artSelect {
     width: 576rpx;
     height: 596rpx;
-    display: flex;
-    flex-wrap: wrap;
-    overflow-y: overlay;
+
     margin: 20rpx auto 0;
+
+    &-box {
+      display: flex;
+      flex-wrap: wrap;
+    }
 
     &-item {
       width: 184rpx;
@@ -519,7 +524,7 @@
       background-size: cover;
       border-bottom: 4rpx solid white;
       border-right: 4rpx solid white;
-      display: flex;
+      display: inline-flex;
       justify-content: flex-end;
       align-items: flex-end;
     }
