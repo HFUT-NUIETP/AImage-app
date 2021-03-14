@@ -2,8 +2,8 @@
     "name" : "AImage",
     "appid" : "__UNI__600825E",
     "description" : "",
-    "versionName" : "1.0.2",
-    "versionCode" : 103,
+    "versionName" : "1.0.3",
+    "versionCode" : 104,
     "transformPx" : false,
     "app-plus" : {
         "nvueCompiler" : "uni-app",
@@ -34,7 +34,7 @@
                     "<uses-permission android:name=\"android.permission.WRITE_CONTACTS\"/>",
                     "<uses-permission android:name=\"android.permission.WRITE_SETTINGS\"/>"
                 ],
-                "abiFilters" : [ "armeabi-v7a", "arm64-v8a", "x86" ]
+                "abiFilters" : [ "armeabi-v7a", "arm64-v8a" ]
             },
             "ios" : {},
             "sdkConfigs" : {
