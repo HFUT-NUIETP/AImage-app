@@ -14,7 +14,9 @@
   <img-picker ref="picker" :img="img" v-on:img-change="imgChange($event)" v-show="currentMainComponent === 'picker'"></img-picker>
   <view class="content-box" v-if="currentMainComponent === 'input' || currentMainComponent === 'output'">
     <view class="input-area">
-      <textarea v-model="textareaValue" class="textarea" :placeholder="this.currentMainComponent === 'output' ? '':'请输入要加密的文字'" :disabled="this.currentMainComponent === 'output'"></textarea>
+      <textarea v-model="textareaValue" class="textarea"
+                :placeholder="this.currentMainComponent === 'output' ? '':'请输入要加密的文字'"
+                :disabled="this.currentMainComponent === 'output'" :adjust-position="false"></textarea>
       <view class="button" v-if="currentMainComponent === 'input'" @click="encrypted">开始加密</view>
       <view class="button" v-else-if="currentMainComponent === 'output'" @click="copyCopyright">复制</view>
     </view>
