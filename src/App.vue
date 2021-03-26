@@ -18,11 +18,20 @@ export default {
 }
 /* #endif */
 @font-face {
-    font-family: PRegular;
-    src: url('/static/Alibaba-PuHuiTi-Regular.ttf');
+  font-family: 'Alibaba PuHuiTi R';
+  src: url('/static/Alibaba-PuHuiTi-R.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
 }
+
 @font-face {
-    font-family: PBold;
-    src: url('/static/Alibaba-PuHuiTi-Bold.ttf');
+  font-family: 'Alibaba PuHuiTi B';
+  src: url('/static/Alibaba-PuHuiTi-B.ttf') format('truetype');
+  font-weight: bold;
+  font-style: normal;
+  font-display: swap;
 }
+
+
 </style>
