@@ -36,7 +36,7 @@
 				 :show_value="true" step="1" min="1" max="50" />
 				<input-slider name="颜色深浅" :value="pencilData.gammaI" :change="(e) => this.pencilData.gammaI = e.detail.value"
 				 :show_value="true" step="1" min="1" max="50" />
-				<input-slider name="图片质量" :value="pencilData.quality" :change="(e) => this.pencilData.gammaS = e.detail.value"
+				<input-slider name="图片质量" :value="pencilData.quality" :change="(e) => this.pencilData.quality = e.detail.value"
 				 :show_value="true" step="1" min="1" max="3" />
 				<view class="submitButton" @click="startProcess('pencil')">生成</view>
 			</view>
@@ -498,7 +498,7 @@
 		/*position: fixed;*/
 		z-index: 10;
 		font-size: 40rpx;
-		font-family: PBold;
+		font-family: "Alibaba PuHuiTi B";
 
 
 		&-back {

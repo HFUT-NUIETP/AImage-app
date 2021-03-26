@@ -127,8 +127,8 @@
 		display: flex;
 		justify-content: space-evenly;
 		align-items: center;
-		font-family: PBold;
-		font-weight: bold;
+		font-family: "Alibaba PuHuiTi B";
+		//font-weight: bold;
 		font-size: 46rpx;
 		color: white;
 		border-radius: 20px;
@@ -192,7 +192,7 @@
 				align-items: center;
 				padding: 0 36rpx;
 				font-size: 40rpx;
-				font-family: PRegular;
+				font-family: "Alibaba PuHuiTi R";
 				&-icon {
 					width: 48rpx;
 					height: 42rpx;

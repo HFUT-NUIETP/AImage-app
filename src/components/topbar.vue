@@ -5,7 +5,7 @@
 				<slot name="left"></slot>
 			</view>
 		</view>
-		<view style="width: 50%; text-align: center; font-weight: bold;">
+		<view style="width: 50%; text-align: center; font-family: 'Alibaba PuHuiTi B'">
 			<slot name="center"></slot>
 		</view>
 		<view style="width: 25%; text-align: end">
@@ -51,7 +51,7 @@
 		/*position: fixed;*/
 		z-index: 10;
 		font-size: 40rpx;
-		font-family: PBold;
+		font-family: "Alibaba PuHuiTi B";
 	}
 	.left {
 		padding-left: 40rpx;
@@ -59,5 +59,6 @@
 	.right {
 		padding-right: 40rpx;
 		float: right;
+    font-family: "Alibaba PuHuiTi R";
 	}
 </style>

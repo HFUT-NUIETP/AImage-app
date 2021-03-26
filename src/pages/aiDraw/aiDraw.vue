@@ -12,40 +12,18 @@
     </template>
   </Topbar>
   <view class="draw-box" v-show="currentMainComponent === 'draw'">
-    <draw ref="draw" v-if="!destroy" :color="`rgb(${colors[colorsIndex].options[optionIndex].color})`"
+    <draw ref="draw" v-if="!destroy" :color="`rgb(${colors[colorsIndex[0]].options[colorsIndex[1]].color})`"
           v-on:on-save="aiDrawCallback($event)"
           :use-method="method" :size="size"></draw>
   </view>
   <progressing v-if="currentMainComponent === 'progress'" :percent="percent" detail="AI 正在创作中" :cancel-task="cancelTask"></progressing>
   <view class="draw-function" v-if="currentMainComponent === 'draw'">
-    <view class="draw-palette" @click="popupPalette" :style="[{backgroundColor: `rgb(${colors[colorsIndex].options[optionIndex].color})`}]">{{ colors[colorsIndex].options[optionIndex].type }}</view>
+    <picker class="draw-palette" mode="multiSelector" :style="[{backgroundColor: `rgb(${colors[colorsIndex[0]].options[colorsIndex[1]].color})`}]" :range="[colors, colors[colorsIndex[0]].options]" range-key="type"
+            :value="colorsIndex" @change="e => colorsIndex = e.target.value" @columnchange="onColumnChange">
+      <view>{{ colors[colorsIndex[0]].options[colorsIndex[1]].type }}</view>
+    </picker>
     <view v-for="f in functions" :style="[{backgroundImage: `url(${getFuncColor(f)}.png)`, width: f.width, height: f.height}]" @click="callFunc(f)"></view>
   </view>
-  <uni-popup ref="palette" type="bottom">
-    <view class="popup" style="padding: 48rpx">
-     <view class="popup-content">
-       <view style="font-size: 18px; font-weight: bold; font-family: PBold">颜色选择</view>
-       <view class="select-box">
-         <view class="picker-area">
-           <picker :range="colors" range-key="type" :value="colorsIndex" @change="e => colorsIndex = e.target.value">
-             <view>{{colors[colorsIndex].type}}</view>
-           </picker>
-         </view>
-       </view>
-       <view class="select-box">
-         <view class="picker-area">
-           <picker :range="colors[colorsIndex].options" range-key="type" :value="optionIndex" @change="e => optionIndex = e.target.value">
-             <view class="picker">
-               <view class="color-preview" :style="{backgroundColor: `rgb(${colors[colorsIndex].options[optionIndex].color})`}"></view>
-               <view>{{ colors[colorsIndex].options[optionIndex].type }}</view>
-             </view>
-           </picker>
-         </view>
-       </view>
-       <view class="button" style="margin-top: 80rpx" @click="$refs.palette.close()">确定</view>
-     </view>
-    </view>
-  </uni-popup>
   <uni-popup ref="paint" type="bottom">
     <view class="popup" style="padding: 48rpx">
       <view class="popup-content">
@@ -108,8 +86,7 @@ export default {
       requestTask: undefined,
       errorMsg: "",
       img: "",
-      colorsIndex: 0,
-      optionIndex: 0,
+      colorsIndex: [0, 0],
       destroy: false,
       method: "paint",
       size: 8,
@@ -271,6 +248,12 @@ export default {
     }
   },
   methods: {
+    onColumnChange(e) {
+      let [column, value] = [e.detail.column, e.detail.value];
+      this.colorsIndex[column] = value;
+      this.colorsIndex.splice(1,1,0);
+      this.colorsIndex.splice(2,1,0);
+    },
     getFuncColor(f) {
       if(f.active === true) {
         return f.img + "-b"
@@ -307,9 +290,6 @@ export default {
           return;
       }
 
-    },
-    popupPalette() {
-      this.$refs.palette.open()
     },
     startAIDraw() {
       this.$refs.draw.save();
