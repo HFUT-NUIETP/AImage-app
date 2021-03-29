@@ -312,8 +312,12 @@ export default {
               uni.navigateTo({
                 url: "/pages/success/success",
                 success: (res) => {
-                  res.eventChannel.emit("success", {img: img,
-                  noEncrypted: true})
+                  res.eventChannel.emit("success",
+                      {
+                        img: img,
+                        title: "风格转换",
+                        url: "/pages/styleConvert/styleConvert"
+                      })
                 }
               })
               this.currentMainComponent = "draw";

@@ -156,6 +156,11 @@
 			}
 		},
 		onLoad() {
+      const eventChannel = this.getOpenerEventChannel()
+      eventChannel.on('addImg', data => {
+        console.log(data);
+        this.img = data.img;
+      })
 			setTimeout(() => {
 				//获取状态栏高度，setTimeout后才能调用uni.
 				uni.getSystemInfo({
@@ -166,7 +171,12 @@
 				});
 			}, 1);
 		},
-		methods: {
+    mounted() {
+      if (this.img !== undefined) {
+        this.$refs.picker.changeShow();
+      }
+    },
+    methods: {
 			back() {
 				uni.redirectTo({
 					url: "/pages/index/index",
@@ -272,7 +282,12 @@
               uni.navigateTo({
                 url: "/pages/success/success",
                 success: (res) => {
-                  res.eventChannel.emit("success", {img: img})
+                  res.eventChannel.emit("success",
+                      {
+                        img: img,
+                        title: "版权保护",
+                        url: "/pages/encrypt/encrypt"
+                      })
                 }
               })
               this.currentMainComponent = "choose";
