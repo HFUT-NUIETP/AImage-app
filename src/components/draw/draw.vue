@@ -70,7 +70,7 @@
 					}
 				})
 			},
-			onStart: function(e) {
+			onStart: async function(e) {
 				const t = e.changedTouches[0]
 				if (this.useMethod === "paint") {
 					this.s.push({
@@ -85,7 +85,7 @@
 					t.y = Math.floor(t.y);
 
 					let reg = new RegExp(/rgb\((.*)\)/);
-					let newColor = this.color.match(reg)[1];
+					let newColor = this.color.match(reg)[1].split(",").map((i) => i = Number.parseInt(i));
 					const getPixelColor = async (x, y) => {
 						return await new Promise((resolve, reject) => {
 							uni.canvasGetImageData({
@@ -105,14 +105,10 @@
 							return pixels.data[index];
 						}
 						const replaceColor = (index) => {
-							let temp = newColor.split(",");
-							let R = Number.parseInt(temp[0]);
-							let G = Number.parseInt(temp[1]);
-							let B = Number.parseInt(temp[2]);
 							let A = 255;
-							pixels.data[index + 0] = R;
-							pixels.data[index + 1] = G;
-							pixels.data[index + 2] = B;
+              for (let i = 0; i < 3; i++) {
+                pixels.data[index + i] = newColor[i];
+              }
 							pixels.data[index + 3] = A;
 						}
 						const isSameColor = (index) => {
@@ -123,7 +119,8 @@
 						let dirList = [
 							[x, y]
 						];
-						if (newColor === oldColor) {
+
+						if (oldColor[0] === newColor[0] && oldColor[1] === newColor[1] && oldColor[2] === newColor[2]) {
 							return;
 						}
 						while (dirList.length > 0) {
@@ -208,14 +205,16 @@
 
 					let width = uni.upx2px(750);
 					let height = uni.upx2px(750);
-
-					canvasGetImageData().then(res => {
-						pixels = res
-					})
-
-					getPixelColor(t.x, t.y).then(oldColor => {
-						lineFill(t.x, t.y, newColor, oldColor);
-					})
+          this.$nextTick(
+              () => {
+                canvasGetImageData().then(res => {
+                  pixels = res
+                })
+                getPixelColor(t.x, t.y).then(oldColor => {
+                  lineFill(t.x, t.y, newColor, oldColor);
+                })
+              }
+          );
 				}
 			},
 
@@ -275,7 +274,7 @@
 			return {
 				can: undefined,
 				s: [],
-				pixels: []
+				pixels: [],
 			}
 		},
 	}
