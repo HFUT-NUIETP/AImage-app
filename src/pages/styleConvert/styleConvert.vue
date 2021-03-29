@@ -36,7 +36,7 @@
 				 :show_value="true" step="1" min="1" max="50" />
 				<input-slider name="颜色深浅" :value="pencilData.gammaI" :change="(e) => this.pencilData.gammaI = e.detail.value"
 				 :show_value="true" step="1" min="1" max="50" />
-				<input-slider name="图片质量" :value="pencilData.quality" :change="(e) => this.pencilData.gammaS = e.detail.value"
+				<input-slider name="图片质量" :value="pencilData.quality" :change="(e) => this.pencilData.quality = e.detail.value"
 				 :show_value="true" step="1" min="1" max="3" />
 				<view class="submitButton" @click="startProcess('pencil')">生成</view>
 			</view>
@@ -156,6 +156,11 @@
 			}
 		},
 		onLoad() {
+      const eventChannel = this.getOpenerEventChannel()
+      eventChannel.on('addImg', data => {
+        console.log(data);
+        this.img = data.img;
+      })
 			setTimeout(() => {
 				//获取状态栏高度，setTimeout后才能调用uni.
 				uni.getSystemInfo({
@@ -166,7 +171,12 @@
 				});
 			}, 1);
 		},
-		methods: {
+    mounted() {
+      if (this.img !== undefined) {
+        this.$refs.picker.changeShow();
+      }
+    },
+    methods: {
 			back() {
 				uni.redirectTo({
 					url: "/pages/index/index",
@@ -258,7 +268,7 @@
 				}
 				this.percent = 50;
 				this.requestTask = uni.request({
-					url: this.serverUrl + path,
+					url: uni.getStorageSync('serverUrl') + path,
 					method: 'POST',
 					header: {
 						'content-type': 'application/x-www-form-urlencoded'
@@ -272,7 +282,12 @@
               uni.navigateTo({
                 url: "/pages/success/success",
                 success: (res) => {
-                  res.eventChannel.emit("success", {img: img})
+                  res.eventChannel.emit("success",
+                      {
+                        img: img,
+                        title: "版权保护",
+                        url: "/pages/encrypt/encrypt"
+                      })
                 }
               })
               this.currentMainComponent = "choose";
@@ -498,7 +513,7 @@
 		/*position: fixed;*/
 		z-index: 10;
 		font-size: 40rpx;
-		font-family: PBold;
+		font-family: "Alibaba PuHuiTi B";
 
 
 		&-back {

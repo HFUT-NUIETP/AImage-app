@@ -16,7 +16,7 @@
         <view class="buttonGroup">
           <view class="button" @click="saveImage">保存</view>
           <view class="button" @click="share">分享</view>
-          <view class="button" v-if="!noEncrypted" @click="encrypted">加密</view>
+          <view class="button" @click="to(url)">{{title}}</view>
         </view>
       </view>
     </view>
@@ -35,7 +35,8 @@ export default {
   data() {
     return {
       img: undefined,
-      noEncrypted: false
+      url: undefined,
+      title: undefined
     }
   },
   onLoad() {
@@ -43,7 +44,8 @@ export default {
     eventChannel.on('success', data => {
       console.log(data);
       this.img = data.img;
-      this.noEncrypted = data.noEncrypted;
+      this.title = data.title;
+      this.url = data.url;
     })
   },
   methods: {
@@ -94,9 +96,9 @@ export default {
         });
       });
     },
-    encrypted() {
+    to(url) {
       uni.navigateTo({
-        url: "/pages/encrypt/encrypt",
+        url: url,
         success: (res) => {
           res.eventChannel.emit("addImg", {img: this.img})
         }
