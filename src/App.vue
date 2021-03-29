@@ -3,6 +3,10 @@ export default {
 	onLaunch: function() {
 	},
 	onShow: function() {
+    let serverUrl = uni.getStorageSync('serverUrl');
+    if (serverUrl === "") {
+      uni.setStorageSync('serverUrl', 'http://tencent.terrytengli.com:8002/');
+    }
 	},
 	onHide: function() {
 	}

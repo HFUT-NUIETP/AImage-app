@@ -258,7 +258,7 @@
 				}
 				this.percent = 50;
 				this.requestTask = uni.request({
-					url: this.serverUrl + path,
+					url: uni.getStorageSync('serverUrl') + path,
 					method: 'POST',
 					header: {
 						'content-type': 'application/x-www-form-urlencoded'

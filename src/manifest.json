@@ -76,7 +76,7 @@
                 }
             },
             "splashscreen" : {
-                "androidStyle" : "default"
+                "androidStyle" : "common"
             }
         },
         "splashscreen" : {
@@ -92,7 +92,6 @@
     },
     "h5" : {
         "title" : "AImage",
-        //        "domain" : "http://aimage.terrytengli.com:8001/",
         "router" : {
             "base" : "./"
         }

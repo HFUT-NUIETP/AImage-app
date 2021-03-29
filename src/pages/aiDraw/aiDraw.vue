@@ -22,7 +22,7 @@
             :value="colorsIndex" @change="e => colorsIndex = e.target.value" @columnchange="onColumnChange">
       <view>{{ colors[colorsIndex[0]].options[colorsIndex[1]].type }}</view>
     </picker>
-    <view v-for="f in functions" :style="[{backgroundImage: `url(${getFuncColor(f)}.png)`, width: f.width, height: f.height}]" @click="callFunc(f)"></view>
+    <view v-for="f in functions" :key="f.name" :style="[{backgroundImage: `url(${getFuncColor(f)}.png)`, width: f.width, height: f.height}]" @click="callFunc(f)"></view>
   </view>
   <uni-popup ref="paint" type="bottom">
     <view class="popup" style="padding: 48rpx">
@@ -298,7 +298,7 @@ export default {
       const callAPi = (data) => {
         data.img = data.img.split(",")[1];
         this.requestTask = uni.request({
-          url: this.serverUrl + "paint",
+          url: uni.getStorageSync('serverUrl') + "paint",
           method: 'POST',
           header: {
             'content-type': 'application/x-www-form-urlencoded'
