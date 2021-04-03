@@ -172,7 +172,7 @@
 			}, 1);
 		},
     mounted() {
-      if (this.img !== "" || this.img !== undefined) {
+      if (this.img !== "" && this.img !== undefined) {
         this.$refs.picker.changeShow();
       }
     },
