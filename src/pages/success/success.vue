@@ -16,7 +16,7 @@
         <view class="buttonGroup">
           <view class="button" @click="saveImage">保存</view>
           <view class="button" @click="share">分享</view>
-          <view class="button" @click="to(url)">{{title}}</view>
+          <view class="button" v-if="title" @click="to(url)">{{title}}</view>
         </view>
       </view>
     </view>
