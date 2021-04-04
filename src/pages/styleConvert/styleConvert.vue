@@ -224,8 +224,8 @@
 			},
 			startProcess(type) {
 				this.errorMsg = "";
-				this.currentMainComponent = "progress";
-				this.percent = 1;
+        this.percent = 1;
+        this.currentMainComponent = "progress";
 				let data = {};
 				let path = "";
 				let img = this.img.split(',')[1]
@@ -277,7 +277,7 @@
 					success: (res) => {
 						if (res.statusCode === 200) {
 							this.percent = 100;
-							if (this.currentMainComponent === "choose") return;
+							if (this.currentMainComponent !== "progress") return;
 							const img = "data:image/png;base64," + res.data;
               uni.navigateTo({
                 url: "/pages/success/success",
