@@ -155,7 +155,7 @@ export default {
         success: (res) => {
           if (res.statusCode === 200) {
             this.percent = 100;
-            if (this.currentMainComponent === "progress") return;
+            if (this.currentMainComponent !== "progress") return;
 
             if (path === 'image_encry/decode') {
               this.currentMainComponent = "output";
