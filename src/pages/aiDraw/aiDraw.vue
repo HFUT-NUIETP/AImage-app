@@ -2,7 +2,7 @@
 <Layout>
   <Topbar>
     <template v-slot:left>
-      <topbar-back></topbar-back>
+      <topbar-back v-if="currentMainComponent === 'draw'"></topbar-back>
     </template>
     <template v-slot:center>
       <view>AI 创作</view>
@@ -307,7 +307,7 @@ export default {
           success: (res) => {
             if (res.statusCode === 200) {
               this.percent = 100;
-              if (this.currentMainComponent === "draw") return;
+              if (this.currentMainComponent !== "progress") return;
               const img = "data:image/png;base64," + res.data;
               uni.navigateTo({
                 url: "/pages/success/success",
@@ -352,6 +352,7 @@ export default {
         }, 1500);
         progressAdd();
       }
+      this.percent = 1;
       this.currentMainComponent = "progress";
       let data = {
         'img': path

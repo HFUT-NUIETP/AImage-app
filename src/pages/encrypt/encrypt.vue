@@ -2,7 +2,7 @@
 <layout>
   <topbar>
     <template v-slot:left>
-      <topbar-back></topbar-back>
+      <topbar-back v-if="currentMainComponent === 'picker'"></topbar-back>
     </template>
     <template v-slot:center>
       <view>版权保护</view>
@@ -155,7 +155,7 @@ export default {
         success: (res) => {
           if (res.statusCode === 200) {
             this.percent = 100;
-            if (this.currentMainComponent === "picker") return;
+            if (this.currentMainComponent === "progress") return;
 
             if (path === 'image_encry/decode') {
               this.currentMainComponent = "output";
