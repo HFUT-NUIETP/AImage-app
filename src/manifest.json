@@ -2,8 +2,8 @@
     "name" : "AImage",
     "appid" : "__UNI__600825E",
     "description" : "",
-    "versionName" : "1.0.3",
-    "versionCode" : 104,
+    "versionName" : "1.0.5",
+    "versionCode" : 106,
     "transformPx" : false,
     "app-plus" : {
         "nvueCompiler" : "uni-app",
@@ -76,7 +76,12 @@
                 }
             },
             "splashscreen" : {
-                "androidStyle" : "common"
+                "androidStyle" : "default",
+                "android" : {
+                    "hdpi" : "openbg.9.png",
+                    "xhdpi" : "openbg.9.png",
+                    "xxhdpi" : "openbg.9.png"
+                }
             }
         },
         "splashscreen" : {

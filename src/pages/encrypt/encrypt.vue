@@ -14,9 +14,26 @@
   <img-picker ref="picker" :img="img" v-on:img-change="imgChange($event)" v-show="currentMainComponent === 'picker'"></img-picker>
   <view class="content-box" v-if="currentMainComponent === 'input' || currentMainComponent === 'output'">
     <view class="input-area">
-      <textarea v-model="textareaValue" class="textarea"
-                :placeholder="this.currentMainComponent === 'output' ? '':'请输入要加密的文字'"
-                :disabled="this.currentMainComponent === 'output'" :adjust-position="false"></textarea>
+      <view class="input-title">
+        <span>
+          <span>
+            版权信息
+          </span>
+        </span>
+      </view>
+      <view class="input-group">
+        <view class="input-item" v-for="(v, k) in inputs" :key="k">
+          <view class="input-wrapper">
+            <view class="input-label">{{inputsMap[k]}}</view>
+            <input class="input" v-model:value="inputs[k]" :disabled="currentMainComponent === 'output'">
+          </view>
+        </view>
+        <view class="input-item">
+          <view class="input-label">备注信息</view>
+          <textarea v-model="textareaValue" class="textarea" :adjust-position="false"
+                    :disabled="currentMainComponent === 'output'"></textarea>
+        </view>
+      </view>
       <view class="button" v-if="currentMainComponent === 'input'" @click="encrypted">开始加密</view>
       <view class="button" v-else-if="currentMainComponent === 'output'" @click="copyCopyright">复制</view>
     </view>
@@ -58,7 +75,20 @@ export default {
       percent: 1,
       requestTask: undefined,
       progressDetail: "",
-      errorMsg: ""
+      errorMsg: "",
+      inputs: {
+        author: "",
+        date: "",
+        contact: "",
+        copyright: "",
+      },
+      inputsMap: {
+        author: "作者",
+        date: "创作日期",
+        contact: "联系方式",
+        copyright: "版权声明",
+        area: "备注信息"
+      }
     }
   },
   methods: {
@@ -98,19 +128,12 @@ export default {
       }
     },
     encrypted() {
-      if (this.textareaValue === "") {
-        uni.showToast({
-          title: "加密信息不能为空",
-          icon: "none",
-          mask: false,
-          duration: 2000
-        });
-        return;
-      }
       this.percent = 75;
+      let text = Object.assign({}, this.inputs);
+      text.area = this.textareaValue;
       let data = {
         img: this.img.split(',')[1],
-        txt: this.textareaValue
+        txt: JSON.stringify(text)
       };
       this.callApi(data, "image_encry/encode");
     },
@@ -133,9 +156,13 @@ export default {
           if (res.statusCode === 200) {
             this.percent = 100;
             if (this.currentMainComponent === "picker") return;
+
             if (path === 'image_encry/decode') {
               this.currentMainComponent = "output";
-              this.textareaValue = res.data
+              let data = res.data;
+              this.textareaValue = data.area;
+              delete data.area;
+              this.inputs = data;
             } else {
               const img = "data:image/png;base64," + res.data;
               uni.navigateTo({
@@ -179,8 +206,13 @@ export default {
       this.currentMainComponent = 'progress';
     },
     copyCopyright() {
+      let text = [];
+      for (const inputsKey in this.inputs) {
+        text.push(`${this.inputsMap[inputsKey]}: ${this.inputs[inputsKey]}\n`);
+      }
+      text.push(`备注信息: ${this.textareaValue}`);
       uni.setClipboardData({
-        data: this.textareaValue,
+        data: text.join(),
         success: (e) => {
           uni.showToast({
             title: "已复制",
@@ -213,18 +245,57 @@ export default {
 }
 
 .textarea {
-  width: 584rpx;
   flex-grow: 1;
-  //height: 1099rpx;
-  border: 2px solid #707070;
-  padding: 20px;
+  @extend .input;
+  padding: 20rpx;
+  width: auto;
+  height: 200rpx;
 }
 
 .input-area {
+  flex-grow: 1;
+  padding: 36rpx 72rpx;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  align-items: center;
+}
+
+.input-title {
+  font-family: "Alibaba PuHuiTi B";
+  font-size: 18px;
+  text-align: center;
+  span {
+    border-bottom: 2px #A1A1A1 solid;
+  }
+  > span {
+    padding-bottom: 4px;
+    > span {
+      padding-bottom: 8px;
+    }
+  }
+}
+
+.input-group {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.input-item{
+  display: flex;
+  flex-direction: column;
+  margin-top: 48rpx;
+
+  input {
+    height: 82rpx;
+  }
+}
+
+.input-label {
+  font-size: 16px;
+  margin-bottom: 20rpx;
+}
+
+.input-wrapper {
   flex-grow: 1;
 }
 </style>

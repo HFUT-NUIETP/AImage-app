@@ -52,6 +52,7 @@
 		z-index: 10;
 		font-size: 40rpx;
 		font-family: "Alibaba PuHuiTi B";
+    flex-shrink: 0;
 	}
 	.left {
 		padding-left: 40rpx;

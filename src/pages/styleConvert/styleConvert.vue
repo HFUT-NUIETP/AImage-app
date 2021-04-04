@@ -93,22 +93,22 @@
 				functionType: [{
 						name: "pencil",
 						fun: '铅笔画',
-						img: '../../static/pencil.png'
+						img: '../../static/pencil.jpg'
 					},
 					{
 						name: "oil",
 						fun: '油墨画',
-						img: '../../static/oil.png'
+						img: '../../static/oil.jpg'
 					},
 					{
 						name: "anime",
 						fun: '动漫风',
-						img: '../../static/anime.png'
+						img: '../../static/anime.jpg'
 					},
 					{
 						name: "art",
 						fun: '艺术画',
-						img: '../../static/art.png'
+						img: '../../static/art.jpg'
 					},
 				],
 				img: '',
@@ -172,7 +172,7 @@
 			}, 1);
 		},
     mounted() {
-      if (this.img !== undefined) {
+      if (this.img !== "" && this.img !== undefined) {
         this.$refs.picker.changeShow();
       }
     },
@@ -413,9 +413,8 @@
 		flex-shrink: 0;
 		position: relative;
 		overflow: hidden;
-		background-position-x: center;
-		background-position-y: center;
-	}
+    background-size: contain;
+  }
 
 	.funTypeName {
 		/*width: 100%;*/

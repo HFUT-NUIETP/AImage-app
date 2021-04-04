@@ -21,7 +21,7 @@
           </picker>
         </view>
         <view class="setting-item">
-          <input class="setting-input" type="text" v-model:value="currServerUrl" :disabled="index === 0">
+          <input class="input setting-input" type="text" v-model:value="currServerUrl" :disabled="index === 0">
         </view>
       </view>
       <setting-item @click.native="testConn">
@@ -132,9 +132,6 @@ export default {
   }
   &-input {
     height: 82rpx;
-    border: 2rpx solid #707070;
-    border-radius: 14rpx;
-    padding: 0 20rpx;
   }
 }
 </style>

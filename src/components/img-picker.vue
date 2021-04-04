@@ -56,6 +56,7 @@ export default {
       }
     },
     cancel() {
+      this.$refs.cropper.close();
       this.$emit('img-change', '');
       this.show = true;
     },

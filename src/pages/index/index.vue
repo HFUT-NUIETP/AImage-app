@@ -109,8 +109,11 @@
           }
         })
       }
-		}
-	}
+		},
+    mounted() {
+		  this.testConn();
+    }
+  }
 </script>
 
 <style lang="scss" scoped>
