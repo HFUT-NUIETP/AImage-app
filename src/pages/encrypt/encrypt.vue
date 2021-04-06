@@ -60,12 +60,19 @@ export default {
     eventChannel.on('addImg', data => {
       console.log(data);
       this.img = data.img;
+      // #ifdef APP-PLUS
+      if (this.img !== "" && this.img !== undefined) {
+        this.$refs.picker.changeShow();
+      }
+      // #endif
     })
   },
   mounted() {
-    if (this.img !== undefined) {
+    // #ifdef H5
+    if (this.img !== "" && this.img !== undefined) {
       this.$refs.picker.changeShow();
     }
+    // #endif
   },
   data() {
     return {
