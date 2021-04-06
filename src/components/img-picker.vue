@@ -46,14 +46,7 @@ export default {
       };
       this.$refs.cropper.close(true);
       let img = res.path;
-      if (img.indexOf("base64") === -1) {
-        pathToBase64(img).then(res => {
-          img = res;
-          emit(img)
-        });
-      } else {
-        emit(img);
-      }
+      emit(img);
     },
     cancel() {
       this.$refs.cropper.close();

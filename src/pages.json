@@ -59,8 +59,8 @@
 	"condition": { //模式配置，仅开发期间生效
 		"current": 0, //当前激活的模式(list 的索引项)
 		"list": [{
-			"name": "风格转换", //模式名称
-			"path": "pages/styleConvert/styleConvert", //启动页面
+			"name": "主页", //模式名称
+			"path": "pages/index/index", //启动页面
 			"query": "" //启动参数
 		}]
 	}
