@@ -68,7 +68,13 @@ export default {
               mask: false,
               duration: 2000
             })
+          },
+          complete: () => {
+            uni.hideLoading();
           }
+        });
+        uni.showLoading({
+          title: "正在保存"
         })
       });
     },
