@@ -160,6 +160,11 @@
       eventChannel.on('addImg', data => {
         console.log(data);
         this.img = data.img;
+        // #ifdef APP-PLUS
+        if (this.img !== "" && this.img !== undefined) {
+          this.$refs.picker.changeShow();
+        }
+        // #endif
       })
 			setTimeout(() => {
 				//获取状态栏高度，setTimeout后才能调用uni.
@@ -172,9 +177,11 @@
 			}, 1);
 		},
     mounted() {
+		  // #ifdef H5
       if (this.img !== "" && this.img !== undefined) {
         this.$refs.picker.changeShow();
       }
+      // #endif
     },
     methods: {
 			back() {
