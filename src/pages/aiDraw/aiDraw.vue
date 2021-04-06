@@ -86,7 +86,7 @@ export default {
       requestTask: undefined,
       errorMsg: "",
       img: "",
-      colorsIndex: [0, 0],
+      colorsIndex: [2, 0],
       destroy: false,
       method: "paint",
       size: 8,

@@ -30,8 +30,7 @@
         </view>
         <view class="input-item">
           <view class="input-label">备注信息</view>
-          <textarea v-model="textareaValue" class="textarea" :adjust-position="false"
-                    :disabled="currentMainComponent === 'output'"></textarea>
+          <textarea v-model="textareaValue" class="textarea" :disabled="currentMainComponent === 'output'"></textarea>
         </view>
       </view>
       <view class="button" v-if="currentMainComponent === 'input'" @click="encrypted">开始加密</view>
@@ -52,6 +51,7 @@ import Topbar from "@/components/topbar";
 import TopbarBack from "@/components/topbar-back";
 import ImgPicker from "@/components/img-picker";
 import Progressing from "@/components/progressing";
+import {pathToBase64} from "@/js_sdk/gsq-image-tools/image-tools";
 export default {
   name: "encrypt",
   components: {Progressing, ImgPicker, TopbarBack, Topbar, Layout},
@@ -135,21 +135,43 @@ export default {
       }
     },
     encrypted() {
-      this.percent = 75;
+      this.percent = 50;
       let text = Object.assign({}, this.inputs);
       text.area = this.textareaValue;
       let data = {
         img: this.img.split(',')[1],
         txt: JSON.stringify(text)
       };
-      this.callApi(data, "image_encry/encode");
+      if (this.img.indexOf("base64") === -1) {
+        pathToBase64(this.img).then(
+            (res) => {
+              this.percent = 75;
+              data.img = res;
+              this.callApi(data, "image_encry/encode")
+            }
+        )
+      } else {
+        this.percent = 75;
+        this.callApi(data, "image_encry/encode")
+      }
     },
     decrypted() {
       let data = {
         img: this.img.split(',')[1]
       }
-      this.percent = 75;
-      this.callApi(data, "image_encry/decode");
+      this.percent = 50;
+      if (this.img.indexOf("base64") === -1) {
+        pathToBase64(this.img).then(
+            (res) => {
+              this.percent = 75;
+              data.img = res;
+              this.callApi(data, "image_encry/decode")
+            }
+      )
+      } else {
+        this.percent = 75;
+        this.callApi(data, "image_encry/decode");
+      }
     },
     callApi(data, path) {
       this.requestTask = uni.request({

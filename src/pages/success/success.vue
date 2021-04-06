@@ -50,6 +50,9 @@ export default {
   },
   methods: {
     saveImage() {
+      uni.showLoading({
+        title: "正在保存"
+      })
       base64ToPath(this.img).then((path) => {
         uni.saveImageToPhotosAlbum({
           filePath: path,
@@ -73,31 +76,18 @@ export default {
             uni.hideLoading();
           }
         });
-        uni.showLoading({
-          title: "正在保存"
-        })
       });
     },
     share() {
+      uni.showLoading({
+        title: "正在分享"
+      })
       base64ToPath(this.img).then((path) => {
         uni.shareWithSystem({
           type: "image",
           imageUrl: path,
-          success: () => {
-            uni.showToast({
-              title: "分享成功",
-              icon: "none",
-              mask: false,
-              duration: 2000
-            })
-          },
-          fail: () => {
-            uni.showToast({
-              title: "分享失败",
-              icon: "none",
-              mask: false,
-              duration: 2000
-            })
+          complete: () => {
+            uni.hideLoading();
           }
         });
       });

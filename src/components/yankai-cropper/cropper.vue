@@ -64,7 +64,7 @@
 		props: {
 			quality: {
 				type: Number,
-				default: 1
+				default: 0.5
 			},
 
 			//目标文件的类型。默认值为jpg，jpg：输出jpg格式图片；png：输出png格式图片
@@ -131,6 +131,9 @@
 				this.$emit('cancel');
 			},
 			completeCrop() {
+			  uni.showLoading({
+          title: "裁剪中"
+        })
 				let imagePath = this.imagePath;
 				let canvasContext = wx.createCanvasContext('canvas', this);
 
@@ -177,7 +180,8 @@
 									path: res.tempFilePath,
 									source: this.imagePath
 								});
-							}
+							},
+            complete: () => uni.hideLoading()
 						},
 						this
 					);

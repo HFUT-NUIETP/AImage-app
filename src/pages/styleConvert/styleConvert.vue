@@ -119,7 +119,7 @@
 					color: true,
 					gammaS: 10,
 					gammaI: 10,
-					quality: 2
+					quality: 1
 				},
 				oilpaintData: {
 					flag: false,
@@ -274,32 +274,54 @@
 						return;
 				}
 				this.percent = 50;
-				this.requestTask = uni.request({
-					url: uni.getStorageSync('serverUrl') + path,
-					method: 'POST',
-					header: {
-						'content-type': 'application/x-www-form-urlencoded'
-					},
-					data: data,
-					success: (res) => {
-						if (res.statusCode === 200) {
-							this.percent = 100;
-							if (this.currentMainComponent !== "progress") return;
-							const img = "data:image/png;base64," + res.data;
-              uni.navigateTo({
-                url: "/pages/success/success",
-                success: (res) => {
-                  res.eventChannel.emit("success",
-                      {
-                        img: img,
-                        title: "版权保护",
-                        url: "/pages/encrypt/encrypt"
-                      })
-                }
-              })
-              this.currentMainComponent = "choose";
-						} else {
-							this.errorMsg = "内部错误";
+        if (this.img.indexOf("base64") === -1) {
+          pathToBase64(this.img).then((res) => {
+            this.percent = 75;
+            data.img = res;
+            callApi();
+          })
+        } else {
+          callApi();
+        }
+				let callApi = () => {
+          this.requestTask = uni.request({
+            url: uni.getStorageSync('serverUrl') + path,
+            method: 'POST',
+            header: {
+              'content-type': 'application/x-www-form-urlencoded'
+            },
+            data: data,
+            success: (res) => {
+              if (res.statusCode === 200) {
+                this.percent = 100;
+                if (this.currentMainComponent !== "progress") return;
+                const img = "data:image/png;base64," + res.data;
+                uni.navigateTo({
+                  url: "/pages/success/success",
+                  success: (res) => {
+                    res.eventChannel.emit("success",
+                        {
+                          img: img,
+                          title: "版权保护",
+                          url: "/pages/encrypt/encrypt"
+                        })
+                  }
+                })
+                this.currentMainComponent = "choose";
+              } else {
+                this.errorMsg = "内部错误";
+                uni.navigateTo({
+                  url: "/pages/error/error",
+                  success: (res) => {
+                    res.eventChannel.emit("error", {errorMsg: this.errorMsg, title: "风格转换"});
+                  }
+                })
+                this.currentMainComponent = "choose";
+              }
+            },
+            fail: (res) => {
+              if (res.errMsg === "request:fail abort") return;
+              this.errorMsg = "网络异常"
               uni.navigateTo({
                 url: "/pages/error/error",
                 success: (res) => {
@@ -307,20 +329,9 @@
                 }
               })
               this.currentMainComponent = "choose";
-						}
-					},
-					fail: (res) => {
-            if (res.errMsg === "request:fail abort") return;
-            this.errorMsg = "网络异常"
-            uni.navigateTo({
-              url: "/pages/error/error",
-              success: (res) => {
-                res.eventChannel.emit("error", {errorMsg: this.errorMsg, title: "风格转换"});
-              }
-            })
-            this.currentMainComponent = "choose";
-					}
-				});
+            }
+          });
+        }
 				let progressAdd = () => setTimeout(() => {
 					if (this.percent < 99) {
 						this.percent += 1;
