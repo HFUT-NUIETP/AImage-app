@@ -14,7 +14,7 @@
 			</template>
 		</Topbar>
 		<view class="func-box">
-			<navigator v-for="func in funcList" :url="func.url" :key="func.url" open-type="navigate">
+			<navigator class="route" v-for="func in funcList" :url="func.url" :key="func.url" open-type="navigate">
 				<view class="func" :style="[{backgroundImage: 'linear-gradient(180deg, '+ func.color[0] + ',' + func.color[1] + ')'}]">
 					<view class="func-icon" :style="[{backgroundImage: func.icon}, {width: func.width}, {height: func.height}]"></view>
 					<view>{{func.name}}</view>
@@ -128,6 +128,9 @@
 			@extend .topbar-icon;
 		}
 	}
+  .route {
+    margin-bottom: 120rpx;
+  }
 	.func {
 		width: 500rpx;
 		height: 252rpx;
@@ -140,7 +143,6 @@
 		color: white;
 		border-radius: 20px;
 
-		margin-bottom: 120rpx;
 
 		&-icon {
 			background-size: cover;
