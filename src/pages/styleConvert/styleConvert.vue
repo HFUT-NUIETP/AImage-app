@@ -83,6 +83,7 @@
   import TopbarBack from "@/components/topbar-back";
   import Progressing from "@/components/progressing";
   import ImgPicker from "@/components/img-picker";
+  import {postProcessImageData} from "@/api/postProcess";
 	export default {
 		data() {
 			return {
@@ -230,60 +231,7 @@
 				}
 			},
 			startProcess(type) {
-				this.errorMsg = "";
-        this.percent = 1;
-        this.currentMainComponent = "progress";
-				let data = {};
-				let path = "";
-				let img = this.img.split(',')[1]
-				switch (type) {
-					case 'pencil':
-						this.$refs.pencilPopup.close();
-						data = {
-							'img': img,
-							'color': (this.pencilData.color ? 'True' : 'False'),
-							's': (this.pencilData.gammaS / 10).toFixed(1),
-							'i': (this.pencilData.gammaI / 10).toFixed(1),
-							'q': this.pencilData.quality
-						};
-						path = "pencil";
-						break;
-					case 'oil':
-						this.$refs.oilPopup.close();
-						data = {
-							'img': img,
-							'model': (this.oilpaintData.model ? 0 : 1)
-						};
-						path = "oilpaint";
-						break;
-					case 'anime':
-						data = {
-							'img': img
-						};
-						path = "anime";
-						break;
-					case 'art':
-					  this.$refs.artPopup.close();
-						data = {
-							'img': img,
-              'style_no': this.artSelect
-						};
-						path = "style_transfer";
-						break;
-					default:
-						return;
-				}
-				this.percent = 50;
-        if (this.img.indexOf("base64") === -1) {
-          pathToBase64(this.img).then((res) => {
-            this.percent = 75;
-            data.img = res;
-            callApi();
-          })
-        } else {
-          callApi();
-        }
-				let callApi = () => {
+        let callApi = (data) => {
           this.requestTask = uni.request({
             url: uni.getStorageSync('serverUrl') + path,
             method: 'POST',
@@ -332,12 +280,59 @@
             }
           });
         }
-				let progressAdd = () => setTimeout(() => {
-					if (this.percent < 99) {
-						this.percent += 1;
-						progressAdd();
-					}
-				}, 1500);
+        let progressAdd = () => setTimeout(() => {
+          if (this.percent < 99) {
+            this.percent += 1;
+            progressAdd();
+          }
+        }, 1500);
+				this.errorMsg = "";
+        this.percent = 1;
+        this.currentMainComponent = "progress";
+				let data = {};
+				let path = "";
+				switch (type) {
+					case 'pencil':
+						this.$refs.pencilPopup.close();
+						data = {
+							'img': this.img,
+							'color': (this.pencilData.color ? 'True' : 'False'),
+							's': (this.pencilData.gammaS / 10).toFixed(1),
+							'i': (this.pencilData.gammaI / 10).toFixed(1),
+							'q': this.pencilData.quality
+						};
+						path = "pencil";
+						break;
+					case 'oil':
+						this.$refs.oilPopup.close();
+						data = {
+							'img': this.img,
+							'model': (this.oilpaintData.model ? 0 : 1)
+						};
+						path = "oilpaint";
+						break;
+					case 'anime':
+						data = {
+							'img': this.img
+						};
+						path = "anime";
+						break;
+					case 'art':
+					  this.$refs.artPopup.close();
+						data = {
+							'img': this.img,
+              'style_no': this.artSelect
+						};
+						path = "style_transfer";
+						break;
+					default:
+						return;
+				}
+				this.percent = 50;
+        postProcessImageData(data).then(data => {
+          this.percent = 75;
+          callApi(data)
+        });
 				progressAdd();
 			},
 			cancelTask() {
