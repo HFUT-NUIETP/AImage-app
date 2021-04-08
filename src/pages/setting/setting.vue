@@ -53,6 +53,7 @@ import Layout from "@/components/layout";
 import Topbar from "@/components/topbar";
 import TopbarBack from "@/components/topbar-back";
 import SettingItem from "@/components/setting-item";
+import {testConn} from "@/api/testConn";
 
 export default {
   name: "setting",
@@ -76,35 +77,7 @@ export default {
   methods: {
     testConn() {
       let url = this.currServerUrl;
-      uni.request({
-        url: url + "test",
-        method: "GET",
-        success: (res) => {
-          if (res.data === 1) {
-            uni.showToast({
-              title: `${url}\n连接成功`,
-              icon: "none",
-              mask: false,
-              duration: 2000
-            });
-          } else {
-            uni.showToast({
-              title: `${url}\n服务器返回无效`,
-              icon: "none",
-              mask: false,
-              duration: 2000
-            });
-          }
-        },
-        fail: (res) => {
-          uni.showToast({
-            title: `${url}\n连接失败`,
-            icon: "none",
-            mask: false,
-            duration: 2000
-          });
-        }
-      })
+      testConn(url);
     },
     saveConfig() {
       uni.setStorageSync('serverUrl', this.currServerUrl);

@@ -2,8 +2,7 @@
 	<Layout>
 		<Topbar>
 			<template v-slot:left>
-        <navigator url="/pages/setting/setting" open-type="navigate">
-          <view class="topbar-menu" style="width: 40rpx"></view>
+        <navigator class="topbar-menu" style="width: 40rpx" url="/pages/setting/setting" open-type="navigate">
         </navigator>
 			</template>
 			<template v-slot:center>
@@ -28,7 +27,8 @@
 	import Topbar from "../../components/topbar.vue"
 	import Layout from "../../components/layout";
 	import UniDrawer from "../../components/uni-drawer/uni-drawer"
-	export default {
+  import {testConn} from "@/api/testConn";
+  export default {
 		name: "index",
 		components: {
 			Layout,
@@ -78,36 +78,7 @@
 		},
 		methods: {
 		  testConn() {
-		    let url = uni.getStorageSync('serverUrl');
-        uni.request({
-          url: url + "test",
-          method: "GET",
-          success: (res) => {
-            if (res.data === 1) {
-              uni.showToast({
-                title: `${url}\n连接成功`,
-                icon: "none",
-                mask: false,
-                duration: 2000
-              });
-            } else {
-              uni.showToast({
-                title: `${url}\n服务器返回无效`,
-                icon: "none",
-                mask: false,
-                duration: 2000
-              });
-            }
-          },
-          fail: (res) => {
-            uni.showToast({
-              title: `${url}\n连接失败`,
-              icon: "none",
-              mask: false,
-              duration: 2000
-            });
-          }
-        })
+		    testConn();
       }
 		},
     mounted() {

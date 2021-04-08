@@ -52,6 +52,7 @@ import TopbarBack from "@/components/topbar-back";
 import ImgPicker from "@/components/img-picker";
 import Progressing from "@/components/progressing";
 import {pathToBase64} from "@/js_sdk/gsq-image-tools/image-tools";
+import {postProcessImageData} from "@/api/postProcess";
 export default {
   name: "encrypt",
   components: {Progressing, ImgPicker, TopbarBack, Topbar, Layout},
@@ -139,39 +140,23 @@ export default {
       let text = Object.assign({}, this.inputs);
       text.area = this.textareaValue;
       let data = {
-        img: this.img.split(',')[1],
+        img: this.img,
         txt: JSON.stringify(text)
       };
-      if (this.img.indexOf("base64") === -1) {
-        pathToBase64(this.img).then(
-            (res) => {
-              this.percent = 75;
-              data.img = res;
-              this.callApi(data, "image_encry/encode")
-            }
-        )
-      } else {
+      postProcessImageData(data).then((res) => {
         this.percent = 75;
-        this.callApi(data, "image_encry/encode")
-      }
+        this.callApi(res, "image_encry/encode")
+      });
     },
     decrypted() {
       let data = {
-        img: this.img.split(',')[1]
+        img: this.img
       }
       this.percent = 50;
-      if (this.img.indexOf("base64") === -1) {
-        pathToBase64(this.img).then(
-            (res) => {
-              this.percent = 75;
-              data.img = res;
-              this.callApi(data, "image_encry/decode")
-            }
-      )
-      } else {
+      postProcessImageData(data).then((res) => {
         this.percent = 75;
-        this.callApi(data, "image_encry/decode");
-      }
+        this.callApi(res, "image_encry/decode")
+      });
     },
     callApi(data, path) {
       this.requestTask = uni.request({

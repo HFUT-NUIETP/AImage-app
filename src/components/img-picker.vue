@@ -30,9 +30,9 @@ export default {
   methods: {
     addImg() {
       uni.chooseImage({
-        count: 1, //默认9
-        sizeType: ['original'], //可以指定是原图还是压缩图，默认二者都有
-        sourceType: ['album'], //从相册选择
+        count: 1,
+        sizeType: ['compressed'],
+        sourceType: ['album'],
         success: (res) => {
           console.log(res);
           this.$refs.cropper.init(res.tempFilePaths[0]);
