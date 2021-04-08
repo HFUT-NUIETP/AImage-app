@@ -140,7 +140,7 @@ export default {
       let text = Object.assign({}, this.inputs);
       text.area = this.textareaValue;
       let data = {
-        img: this.img.split(',')[1],
+        img: this.img,
         txt: JSON.stringify(text)
       };
       postProcessImageData(data).then((res) => {
@@ -150,7 +150,7 @@ export default {
     },
     decrypted() {
       let data = {
-        img: this.img.split(',')[1]
+        img: this.img
       }
       this.percent = 50;
       postProcessImageData(data).then((res) => {
