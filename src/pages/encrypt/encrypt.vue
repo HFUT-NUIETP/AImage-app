@@ -75,6 +75,14 @@ export default {
     }
     // #endif
   },
+  onBackPress(o) {
+    if (this.currentMainComponent === "input" || this.currentMainComponent === "output") {
+      this.currentMainComponent = "picker"
+      return true;
+    } else {
+      return false;
+    }
+  },
   data() {
     return {
       img: undefined,
