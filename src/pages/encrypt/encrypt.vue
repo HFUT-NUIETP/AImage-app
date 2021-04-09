@@ -2,7 +2,7 @@
 <layout>
   <topbar>
     <template v-slot:left>
-      <topbar-back v-if="currentMainComponent === 'picker'"></topbar-back>
+      <topbar-back v-if="currentMainComponent === 'picker' || currentMainComponent === 'input' || currentMainComponent === 'output'"></topbar-back>
     </template>
     <template v-slot:center>
       <view>版权保护</view>
@@ -51,7 +51,7 @@ import Topbar from "@/components/topbar";
 import TopbarBack from "@/components/topbar-back";
 import ImgPicker from "@/components/img-picker";
 import Progressing from "@/components/progressing";
-import {pathToBase64} from "@/js_sdk/gsq-image-tools/image-tools";
+import {base64ToPath} from "@/js_sdk/gsq-image-tools/image-tools";
 import {postProcessImageData} from "@/api/postProcess";
 export default {
   name: "encrypt",
@@ -125,24 +125,26 @@ export default {
         });
         return;
       }
-      this.percent = 25;
       switch (func) {
         case 'en':
+          this.progressDetail = "加密中"
           this.currentMainComponent = 'input';
           this.textareaValue = '';
           break;
         case 'de':
+          this.progressDetail = "解密中"
           this.decrypted();
       }
     },
     encrypted() {
-      this.percent = 50;
+      this.percent = 25;
       let text = Object.assign({}, this.inputs);
       text.area = this.textareaValue;
       let data = {
         img: this.img,
         txt: JSON.stringify(text)
       };
+      this.percent = 50;
       postProcessImageData(data).then((res) => {
         this.percent = 75;
         this.callApi(res, "image_encry/encode")
@@ -179,13 +181,15 @@ export default {
               this.inputs = data;
             } else {
               const img = "data:image/png;base64," + res.data;
-              uni.navigateTo({
-                url: "/pages/success/success",
-                success: (res) => {
-                  res.eventChannel.emit("success", {img: img})
-                }
+              base64ToPath(img).then(data => {
+                uni.navigateTo({
+                  url: "/pages/success/success",
+                  success: (res) => {
+                    res.eventChannel.emit("success", {img: data})
+                  }
+                })
+                this.currentMainComponent = "picker";
               })
-              this.currentMainComponent = "picker";
             }
           } else {
             this.errorMsg = "内部错误";

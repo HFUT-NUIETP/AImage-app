@@ -53,43 +53,39 @@ export default {
       uni.showLoading({
         title: "正在保存"
       })
-      base64ToPath(this.img).then((path) => {
-        uni.saveImageToPhotosAlbum({
-          filePath: path,
-          success: () => {
-            uni.showToast({
-              title: "保存成功",
-              icon: "none",
-              mask: false,
-              duration: 2000
-            })
-          },
-          fail: () => {
-            uni.showToast({
-              title: "保存失败",
-              icon: "none",
-              mask: false,
-              duration: 2000
-            })
-          },
-          complete: () => {
-            uni.hideLoading();
-          }
-        });
+      uni.saveImageToPhotosAlbum({
+        filePath: this.img,
+        success: () => {
+          uni.showToast({
+            title: "保存成功",
+            icon: "none",
+            mask: false,
+            duration: 2000
+          })
+        },
+        fail: () => {
+          uni.showToast({
+            title: "保存失败",
+            icon: "none",
+            mask: false,
+            duration: 2000
+          })
+        },
+        complete: () => {
+          uni.hideLoading();
+        }
       });
     },
     share() {
       uni.showLoading({
         title: "正在分享"
       })
-      base64ToPath(this.img).then((path) => {
-        uni.shareWithSystem({
-          type: "image",
-          imageUrl: path,
-          complete: () => {
-            uni.hideLoading();
-          }
-        });
+      uni.shareWithSystem({
+        type: "image",
+        imageUrl: this.img,
+        complete: () => {
+          uni.hideLoading();
+        }
       });
     },
     to(url) {

@@ -244,16 +244,18 @@
                 this.percent = 100;
                 if (this.currentMainComponent !== "progress") return;
                 const img = "data:image/png;base64," + res.data;
-                uni.navigateTo({
-                  url: "/pages/success/success",
-                  success: (res) => {
-                    res.eventChannel.emit("success",
-                        {
-                          img: img,
-                          title: "版权保护",
-                          url: "/pages/encrypt/encrypt"
-                        })
-                  }
+                base64ToPath(img).then(data => {
+                  uni.navigateTo({
+                    url: "/pages/success/success",
+                    success: (res) => {
+                      res.eventChannel.emit("success",
+                          {
+                            img: data,
+                            title: "版权保护",
+                            url: "/pages/encrypt/encrypt"
+                          })
+                    }
+                  })
                 })
                 this.currentMainComponent = "choose";
               } else {
