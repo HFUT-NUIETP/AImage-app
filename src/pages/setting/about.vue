@@ -16,30 +16,15 @@
     </view>
   </view>
   <view class="information">
-    <view style="color: #525151; font-size: 16px;">
-      文字文字文字文字文字文字文字文字文字文字
-      文字文字文字文字文字文字文字文字文字文字
-      文字文字文字文字文字文字文字文字文字文字
-      文字文字文字文字文字文字文字文字文字文字
-      文字文字文字文字文字文字文字文字文字文字
-      Lorem ipsum dolor sit amet, consectetur
-      adipisicing elit, sed do eiusmod tempor
-      incididunt ut labore et dolore magna ali-
-      qua. Ut enim ad minim veniam, quis no-
-      strud exercitation ullamco laboris nisi ut
-      aliquip exea commodo consequat. Duis
-      aute irure dolor in reprehenderit in volu-
-      ptate velit esse cillum dolore eu fugiat n
-      ulla pariatur. Excepteur sint occaecat cu
-      pidatat non proident, sunt in culpa qui o
-      fficia deserunt mollit anim id est laborum.
-      Lorem ipsum dolor sit amet, consectetur
-      adipisicing elit, sed do eiusmod tempor
-      incididunt ut labore et dolore magna ali-
-      qua. Ut enim ad minim veniam, quis no-
-      strud exercitation ullamco laboris nisi ut
-      aliquip exea commodo consequat. Duis
-    </view>
+    <text style="color: #525151; font-size: 16px;">
+      AI绘画是一个移动艺术创作平台，构建了一个全新的艺术画创作流程，使用户无需过多专业技巧，即可从0开始创作出风格多元的艺术画，并使用隐水印技术保护作品版权。
+
+      在AI创作模块中，可使用各种绘图工具，简单描绘景物的轮廓，即可生成一张逼真的自然风景图像。
+
+      在风格转换模块中，可对生成的图像进行精细化风格编辑，生成四类风格多样的艺术图像。
+
+      在版权保护模块中，可将版权信息以隐式水印的方式记录到创作作品当中。
+    </text>
   </view>
 </Layout>
 </template>
@@ -75,9 +60,9 @@ export default {
 .information {
   flex-grow: 1;
   display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 0 34px;
+  justify-content: flex-end;
+  align-items: flex-start;
+  padding: 20px 34px;
   overflow: hidden;
 }
 </style>
