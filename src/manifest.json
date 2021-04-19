@@ -2,8 +2,8 @@
     "name" : "AI 绘画",
     "appid" : "__UNI__600825E",
     "description" : "",
-    "versionName" : "1.0.8",
-    "versionCode" : 109,
+    "versionName" : "1.0.9",
+    "versionCode" : 110,
     "transformPx" : false,
     "app-plus" : {
         "nvueCompiler" : "uni-app",
